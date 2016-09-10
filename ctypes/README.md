@@ -23,3 +23,4 @@ g++ -shared -Wl,-soname,libfoo.so -o libfoo.so  foo.o
 --------------------------------------------------------
 
 - NumPy reference on [ctypeslib](http://docs.scipy.org/doc/numpy/reference/routines.ctypeslib.html)
+- [Custom Structures](http://stackoverflow.com/questions/15667361/callback-with-custom-types-in-python-ctypes)
