@@ -22,5 +22,21 @@ g++ -shared -Wl,-soname,libfoo.so -o libfoo.so  foo.o
 
 --------------------------------------------------------
 
+### C++ Thoughts ###
+
+Use `extern` blocks to force `C++` compiler to perform C-linkage (i.e., no name mangling):
+
+```C++
+extern "C" {
+    
+}
+```
+
+Inside of these `extern` blocks, use pointers for everything! Better yet, use Smart Pointers (`boost::shared_ptr` or `cv::Ptr` or `std::shared_ptr` in C++11) -- that way you don't have to use free/delete.
+
+If not using Smart Pointers, I was getting `double free or corruption` errors from C++ when my `Model` object uses `Vector` objects inside of it...
+
+--------------------------------------------------------
+
 - NumPy reference on [ctypeslib](http://docs.scipy.org/doc/numpy/reference/routines.ctypeslib.html)
 - [Custom Structures](http://stackoverflow.com/questions/15667361/callback-with-custom-types-in-python-ctypes)

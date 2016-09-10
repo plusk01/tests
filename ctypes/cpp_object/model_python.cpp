@@ -12,46 +12,47 @@
 using namespace std;
 
 extern "C" {
-    Model* new_model() {
-        return new Model();
+    boost::shared_ptr<Model> new_model() {
+        boost::shared_ptr<Model> m(new Model());
+        return m;
     }
-    void delete_model(Model* m){
+    void delete_model(boost::shared_ptr<Model> m){
         cout << "destructor called in C++ for (model) " << m << endl;
-        delete m;
+        // delete m;
     }
 
-    float model_get_height(Model* m) {
+    float model_get_height(boost::shared_ptr<Model> m) {
         return m->height;
     }
-    void model_set_height(Model* m, float height) {
+    void model_set_height(boost::shared_ptr<Model> m, float height) {
         m->height = height;
     }
 
-    float model_get_width(Model* m) {
+    float model_get_width(boost::shared_ptr<Model> m) {
         return m->width;
     }
-    void model_set_width(Model* m, float width) {
+    void model_set_width(boost::shared_ptr<Model> m, float width) {
         m->width = width;
     }
 
 
-    double model_get_rho(Model* m) {
+    double model_get_rho(boost::shared_ptr<Model> m) {
         return m->rho;
     }
-    void model_set_rho(Model* m, double rho) {
+    void model_set_rho(boost::shared_ptr<Model> m, double rho) {
         m->rho = rho;
     }
 
 
-    int model_get_T(Model* m) {
+    int model_get_T(boost::shared_ptr<Model> m) {
         return m->T;
     }
-    void model_set_T(Model* m, int T) {
+    void model_set_T(boost::shared_ptr<Model> m, int T) {
         m->T = T;
     }
 
 
-    vector<int>* model_get_CS(Model* m) {
+    vector<int>* model_get_CS(boost::shared_ptr<Model> m) {
         return &(m->CS);
     }
 
