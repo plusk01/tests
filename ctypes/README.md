@@ -40,3 +40,4 @@ If not using Smart Pointers, I was getting `double free or corruption` errors fr
 
 - NumPy reference on [ctypeslib](http://docs.scipy.org/doc/numpy/reference/routines.ctypeslib.html)
 - [Custom Structures](http://stackoverflow.com/questions/15667361/callback-with-custom-types-in-python-ctypes)
+- [C++ Classes with ctypes](http://stackoverflow.com/questions/1615813/how-to-use-c-classes-with-ctypes)
