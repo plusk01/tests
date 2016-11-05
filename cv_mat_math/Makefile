@@ -1,4 +1,10 @@
-all: main
+all: test_stdlib_math test_cv_math
 
-main: main.cpp
-	g++ -std=c++11 -Wall main.cpp -o main -lopencv_core
+test_stdlib_math: stdlib_container_math.cpp
+	g++ -std=c++11 -Wall $^ -o $@ -lopencv_core
+
+test_cv_math: cv_math.cpp
+	g++ -std=c++11 -Wall $^ -o $@ -lopencv_core	
+
+clean:
+	rm test_stdlib_math test_cv_math
