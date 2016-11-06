@@ -25,63 +25,53 @@ void print(std::vector<cv::Point2f> measurements) {
 int main() {
 
 	std::vector<cv::Point2f> measurements;
-	measurements.push_back(cv::Point2f(4,4));
-	measurements.push_back(cv::Point2f(25,25));
-	measurements.push_back(cv::Point2f(36.5,36.5));
+	measurements.push_back(cv::Point2f(4,16));
+	measurements.push_back(cv::Point2f(25,100));
+	measurements.push_back(cv::Point2f(36.5,123));
 
 	cout << "measurements.size() = " << measurements.size() << endl;
 	print(measurements);
 
 	// focal length
-	double f = 2.6;
+	float f = 2.6;
 
-	// Is it not working because I am starting from vector<Point2f> ?
-	cv::Mat A(2,1,CV_64FC2,cv::Scalar(1,2));
-	cout << A << endl;
-	cout << A.channels() << endl;
+	// Convert Point2f vector to a Mat (CV_32FC2)
+	cv::Mat tmp(measurements);
+	cout << "tmp.type == " << tmp.type() << " ; tmp.channels == " << tmp.channels() << endl;
 
-	cv::Mat B(2,2,CV_64FC1);
-	A.convertTo(B,CV_32FC1);
-	cout << B << endl;
-	cout << B.channels() << endl << endl << endl;
-	// it still didn't work :(
-
-
-
-
-	// turn vector of points into a mat
-	cv::Mat pts_nby1c2(measurements);
-	cv::Mat tmp;
-	pts_nby1c2.convertTo(tmp, CV_64FC1, 0.5);
-
-	cout << tmp << endl;
-	cout << tmp.channels() << endl;
-
-	cout << pts_nby1c2 << endl;
-	cout << pts_nby1c2.channels() << endl;
-	cout << pts_nby1c2.rows << ", " << pts_nby1c2.cols << endl;
-
+	// Convert A (CV_32FC2) to B (CV_32FC1) (could I do cv::Mat::reshape instead?)
+	std::vector<cv::Mat> channels;
+	cv::split(tmp, channels);
+	cv::hconcat(channels, tmp);
+	cout << "tmp.type == " << tmp.type() << " ; tmp.channels == " << tmp.channels() << endl;
+	cout << endl << tmp << endl << endl;
 
 	// Add a third column (the focal length) to each row
-	cv::Mat pts(measurements.size(), 1, CV_64FC3, cv::Scalar(0,0,f));
+	cv::Mat pts(measurements.size(), 3, CV_32FC1, cv::Scalar(f));
 	cout << pts << endl;
-	cout << pts.channels() << endl;
+	cout << "pts.channels == " << pts.channels() << endl;
+	cout << "pts.cols == " << pts.cols << "; pts.rows == " << pts.rows << endl << endl;
 
-	tmp.copyTo(pts(cv::Rect(0, 0, pts.cols, pts.rows)));
-	cout << pts << endl;
-
-	std::vector<cv::Point2f> ell_unit_c;
+	// copy smaller nx2 mat into bigger nx3 mat
+	tmp.copyTo(pts(cv::Rect(0, 0, tmp.cols, tmp.rows)));
+	cout << "pts:" << endl << pts << endl;
 
 	// Do some math
-	std::transform(measurements.begin(), measurements.end(), std::back_inserter(ell_unit_c), [f](cv::Point2f p) {
-		cv::Point2f tmp;
+	cv::Mat F = pts.mul(pts);
+	cv::reduce(F, F, 1, CV_REDUCE_SUM); // 1 is the dimension to sum along
+	cv::sqrt(F, F); // now matrix is nx1
 
-		double F = std::sqrt(p.x*p.x + p.y*p.y + f*f);	
+	// expand matrix back to nx3 so we can divide
+	F = cv::repeat(F, 1, 3);
 
-		cout << "F: " << F << endl;
+	cout << endl << endl << "F:" << endl <<F << endl << endl;
 
-		return p/F;
-	});
+	// divide and create ell_unit_c
+	std::vector<cv::Point2f> ell_unit_c;
+	cv::Mat pts_unit_c;
+	cv::divide(pts, F, pts_unit_c);
+	
+	cout << pts_unit_c << endl;
 
 	print(measurements);
 	print(ell_unit_c);

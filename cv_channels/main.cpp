@@ -47,7 +47,7 @@ int main() {
 	// And now concat each of the mats into one, CV_64FC1 mat.
 	// hconcat (stack by columns); vconcat (stack by rows)
 	cv::Mat B;
-	hconcat(s, B);
+	cv::hconcat(s, B);
 	cout << endl << endl << B << endl;
 	cout << "B.type == " << B.type() << " ; B.channels == " << B.channels() << endl;
 
