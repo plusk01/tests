@@ -40,9 +40,10 @@ int main() {
 	cout << "tmp.type == " << tmp.type() << " ; tmp.channels == " << tmp.channels() << endl;
 
 	// Convert A (CV_32FC2) to B (CV_32FC1) (could I do cv::Mat::reshape instead?)
-	std::vector<cv::Mat> channels;
-	cv::split(tmp, channels);
-	cv::hconcat(channels, tmp);
+	//std::vector<cv::Mat> channels;
+	//cv::split(tmp, channels);
+	//cv::hconcat(channels, tmp);
+	tmp = tmp.reshape(1);
 	cout << "tmp.type == " << tmp.type() << " ; tmp.channels == " << tmp.channels() << endl;
 	cout << endl << tmp << endl << endl;
 
@@ -53,8 +54,19 @@ int main() {
 	cout << "pts.cols == " << pts.cols << "; pts.rows == " << pts.rows << endl << endl;
 
 	// copy smaller nx2 mat into bigger nx3 mat
-	tmp.copyTo(pts(cv::Rect(0, 0, tmp.cols, tmp.rows)));
+	// It would be better if I could figure out how to place a submatrix shallow copy into a new, bigger matrix
+	// then, I wouldn't have to move memory around at the end because it was already worked on. I think.
+	tmp.copyTo(pts(cv::Rect(0, 0, tmp.cols, tmp.rows))); // deep copy
 	cout << "pts:" << endl << pts << endl;
+
+	cout << "pts.isContinous == " << pts.isContinuous() << endl;
+	cout << "pts.channels == " << pts.channels() << endl;
+        cout << "pts.cols == " << pts.cols << "; pts.rows == " << pts.rows << endl << endl;
+
+	// test deep vs shallow copy of tmp and pts
+	//pts.at<float>(0,0) = 555.123;
+	//cout << tmp << endl;
+
 
 	// Do some math
 	cv::Mat F = pts.mul(pts);
@@ -69,9 +81,14 @@ int main() {
 	// divide and create ell_unit_c
 	std::vector<cv::Point2f> ell_unit_c;
 	cv::Mat pts_unit_c;
-	cv::divide(pts, F, pts_unit_c);
-	
-	cout << pts_unit_c << endl;
+	cv::divide(pts, F, pts);
+	cout << pts << endl;
+
+	// copy to ell_unit_c vector
+	cv::Mat sub_pts = pts(cv::Rect(0,0,pts.cols-1,pts.rows)).reshape(2);
+	cout << "sub_pts:" << endl << sub_pts << endl;
+	sub_pts.copyTo(ell_unit_c);
+
 
 	print(measurements);
 	print(ell_unit_c);
