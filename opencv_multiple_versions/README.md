@@ -7,7 +7,8 @@ Using multiple OpenCV versions on one machine for different projects.
 
 Clone the repo and install which ever branch / version you want. Use `cmake` and make sure to set the prefix path:
 ```bash
-cmake -DCMAKE_INSTALL_PREFIX=/home/plusk01/libs/opencv2.4/release -DCMAKE_BUILD_TYPE=RELEASE ~/dev/opencv/ 
+cmake -DCMAKE_INSTALL_PREFIX=/home/plusk01/libs/opencv2.4/release \
+	-DCMAKE_BUILD_TYPE=RELEASE ~/dev/opencv/ 
 ```
 
 Also, you can use `ccmake` to bring up a `curses` terminal gui thing to select all the options. If you want Python, make sure Python is ON.
