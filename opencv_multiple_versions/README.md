@@ -19,6 +19,13 @@ This took a lot of work, and it's still a little confusing to me. It's important
 ```bash
 $ export CMAKE_PREFIX_PATH=/home/plusk01/libs/opencv2.4/release
 ```
+Also, you could just run:
+
+```bash
+$ cmake -DCMAKE_PREFIX_PATH=/home/plusk01/libs/opencv2.4/release ..
+```
+
+(See [here](http://stackoverflow.com/a/7031130/2392520)).
 
 It's also worth noting that with CUDA 7.5 installed on my machine and having compiled OpenCV 2.4.13 with CUDA support, I get a linker error after running `cmake ..` and running `make`:
 ```bash
