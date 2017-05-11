@@ -16,6 +16,12 @@ int main() {
 	cout << "The matrix A:" << endl;
 	cout << A << endl;
 
+	cout << "The matrix A^0:" << endl;
+	cout << A.pow(0) << endl;
+
+	cout << "The matrix A^1:" << endl;
+	cout << A.pow(1) << endl;
+
 	cout << "The matrix A^2:" << endl;
 	cout << A.pow(2) << endl;
 
