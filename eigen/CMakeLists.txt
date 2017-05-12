@@ -16,3 +16,6 @@ include_directories( ${OpenCV_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS} )
 # Create the executables and link them to libs
 add_executable(matpow src/matpow.cpp)
 target_link_libraries(matpow ${Eigen3_LIBS})
+
+add_executable(reshape src/reshape.cpp)
+target_link_libraries(reshape ${Eigen3_LIBS})
