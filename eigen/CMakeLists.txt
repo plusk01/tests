@@ -19,3 +19,6 @@ target_link_libraries(matpow ${Eigen3_LIBS})
 
 add_executable(reshape src/reshape.cpp)
 target_link_libraries(reshape ${Eigen3_LIBS})
+
+add_executable(norm src/norm.cpp)
+target_link_libraries(norm ${Eigen3_LIBS})
