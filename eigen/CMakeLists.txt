@@ -22,3 +22,6 @@ target_link_libraries(reshape ${Eigen3_LIBS})
 
 add_executable(norm src/norm.cpp)
 target_link_libraries(norm ${Eigen3_LIBS})
+
+add_executable(conservative_resize src/conservative_resize.cpp)
+target_link_libraries(conservative_resize ${Eigen3_LIBS})
