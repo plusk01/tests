@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 2.8.4)
 project(openmp_playground)
 
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp -ftree-vectorize ")
 
 # Find dependent libraries
 find_package(OpenCV 3 REQUIRED)
