@@ -15,13 +15,16 @@ include_directories( ${OpenCV_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS} )
 
 # Create the executables and link them to libs
 add_executable(matpow src/matpow.cpp)
-target_link_libraries(matpow ${Eigen3_LIBS})
+target_link_libraries(matpow)
 
 add_executable(reshape src/reshape.cpp)
-target_link_libraries(reshape ${Eigen3_LIBS})
+target_link_libraries(reshape)
 
 add_executable(norm src/norm.cpp)
-target_link_libraries(norm ${Eigen3_LIBS})
+target_link_libraries(norm)
 
 add_executable(conservative_resize src/conservative_resize.cpp)
-target_link_libraries(conservative_resize ${Eigen3_LIBS})
+target_link_libraries(conservative_resize)
+
+add_executable(perspective_transform src/perspective_transform.cpp)
+target_link_libraries(perspective_transform)

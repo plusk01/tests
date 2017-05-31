@@ -4,4 +4,4 @@
 # But not these files...
 !.gitignore
 !README.md
-*.png
+!*.png
