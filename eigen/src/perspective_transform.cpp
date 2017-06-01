@@ -6,11 +6,6 @@
 using namespace std;
 using namespace Eigen;
 
-
-void perspectiveTransform(const Eigen::Matrix3d& T, Eigen::Vector2d& pt) {
-
-}
-
 int main() {
 	// Original Points
 	Eigen::Vector2d pt1, pt2, pt3, pt4;

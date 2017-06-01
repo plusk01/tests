@@ -28,3 +28,6 @@ target_link_libraries(conservative_resize)
 
 add_executable(perspective_transform src/perspective_transform.cpp)
 target_link_libraries(perspective_transform)
+
+add_executable(idx_lookup src/idx_lookup.cpp)
+target_link_libraries(idx_lookup)
