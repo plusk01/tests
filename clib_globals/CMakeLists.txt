@@ -9,8 +9,8 @@ set(CMAKE_BUILD_TYPE Debug)
 include_directories( include )
 
 # add C lib
-add_library(mylib src/test.c)
+add_library(mylib SHARED src/test.c)
 
 # Create the executables and link them to libs
 add_executable(main src/main.cpp)
-target_link_libraries(main mylib)
+target_link_libraries(main ${CMAKE_DL_LIBS})
