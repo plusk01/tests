@@ -57,22 +57,43 @@ int main( int argc, char** argv )
     obj.push_back( keypoints_object[ good_matches[i].queryIdx ].pt );
     scene.push_back( keypoints_scene[ good_matches[i].trainIdx ].pt );
   }
-  Mat H = findHomography( obj, scene, RANSAC );
+
+  // Calculate the homography in pixels
+  Mat Hpx = findHomography( obj, scene, RANSAC );
+  std::cout << "homography (pixels): \n" << Hpx << std::endl;
+
+  //
+  // Project to NIP
+  //
+
+  cv::Mat D = cv::Mat::zeros(1,5,CV_64F);
+  cv::Mat K = (cv::Mat_<double>(3,3) << 700, 0, 256, 0, 700, 192, 0, 0, 1);
+
+  std::vector<Point2f> obj_nip, scene_nip;
+  cv::undistortPoints(obj, obj_nip, K, D);
+  cv::undistortPoints(scene, scene_nip, K, D);
 
 
-  std::cout << "homography: \n" << H << std::endl;
+  //
+  // Calculate homography in the nip
+  //
+
+  cv::Mat Hnip = findHomography(obj_nip, scene_nip, RANSAC);
+  std::cout << "homography (nip): \n" << Hnip << std::endl;
 
 
   //-- Get the corners from the image_1 ( the object to be "detected" )
   std::vector<Point2f> obj_corners(4);
   obj_corners[0] = cvPoint(0,0); obj_corners[1] = cvPoint( img_object.cols, 0 );
   obj_corners[2] = cvPoint( img_object.cols, img_object.rows ); obj_corners[3] = cvPoint( 0, img_object.rows );
-
+  // Print out the box (not in scene) corners
   std::cout << obj_corners << std::endl;
 
+  // Find where those box corners are in the scene
   std::vector<Point2f> scene_corners(4);
-  perspectiveTransform( obj_corners, scene_corners, H);
+  perspectiveTransform( obj_corners, scene_corners, Hpx);
 
+  // Print out the box corners in the scene
   std::cout << scene_corners << std::endl;
 
   //-- Draw lines between the corners (the mapped object in the scene - image_2 )
