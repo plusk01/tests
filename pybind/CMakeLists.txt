@@ -28,5 +28,7 @@ execute_process(COMMAND ${CMAKE_COMMAND} --build . WORKING_DIRECTORY ${PYBIND_DI
 include_directories(include)
 
 # setup pybind11
+set(PYBIND11_CPP_STANDARD -std=c++11)
+set(PYBIND11_PYTHON_VERSION 2.7)
 add_subdirectory(${PYBIND_DIR}/src)
 pybind11_add_module(pybind_example src/main.cpp)
