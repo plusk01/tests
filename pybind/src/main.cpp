@@ -1,4 +1,10 @@
+#include <iostream>
+#include <vector>
+#include <Eigen/Dense>
+
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <pybind11/eigen.h>
 
 int add(int i, int j) {
     return i + j;
@@ -7,15 +13,7 @@ int add(int i, int j) {
 namespace py = pybind11;
 
 PYBIND11_MODULE(pybind_example, m) {
-    m.doc() = R"pbdoc(
-        Pybind11 example plugin
-        -----------------------
-        .. currentmodule:: cmake_example
-        .. autosummary::
-           :toctree: _generate
-           add
-           subtract
-    )pbdoc";
+    m.doc() = "Example pybind11 module";
 
     m.def("add", &add, R"pbdoc(
         Add two numbers
@@ -26,6 +24,20 @@ PYBIND11_MODULE(pybind_example, m) {
         Subtract two numbers
         Some other explanation about the subtract function.
     )pbdoc");
+
+    m.def("print_numpy",
+            [](Eigen::Vector2d v) {
+                std::cout << "V: " << v.transpose() << std::endl;
+            }
+        );
+
+    m.def("print_stl_numpy",
+            [](std::vector<Eigen::Vector2d> vs) {
+                for (auto&& v : vs) {
+                    std::cout << v.transpose() << std::endl;
+                }
+            }
+        );
 
 #ifdef VERSION_INFO
     m.attr("__version__") = VERSION_INFO;

@@ -24,8 +24,11 @@ execute_process(COMMAND ${CMAKE_COMMAND} --build . WORKING_DIRECTORY ${PYBIND_DI
 
 #################################
 
+find_package(Eigen3 REQUIRED)
+message(STATUS "Eigen Version: " ${EIGEN3_VERSION_STRING})
+
 # Include header files
-include_directories(include)
+include_directories(include ${EIGEN3_INCLUDE_DIRS})
 
 # setup pybind11
 set(PYBIND11_CPP_STANDARD -std=c++11)
