@@ -89,6 +89,6 @@ This allows move semantics. Also note that before C++11 it was the *Rule of Thre
 - [SO: What are the differences between a pointer variable and a reference variable in C++](https://stackoverflow.com/questions/57483/what-are-the-differences-between-a-pointer-variable-and-a-reference-variable-in)
 - [Wikipedia: Resource Acquisition Is Initialization (RAII)](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)
 - [Move semantics and rvalue references in C++11](https://www.cprogramming.com/c++11/rvalue-references-and-move-semantics-in-c++11.html)
-- [SO: What are move semantics](https://stackoverflow.com/questions/3106110/what-are-move-semantics]
+- [SO: What are move semantics](https://stackoverflow.com/questions/3106110/what-are-move-semantics)
 - [Lesson #5: Move Semantics](https://mbevin.wordpress.com/2012/11/20/move-semantics/)
 - [C++11 rvalue References Explained](http://thbecker.net/articles/rvalue_references/section_01.html)
