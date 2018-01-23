@@ -92,3 +92,4 @@ This allows move semantics. Also note that before C++11 it was the *Rule of Thre
 - [SO: What are move semantics](https://stackoverflow.com/questions/3106110/what-are-move-semantics)
 - [Lesson #5: Move Semantics](https://mbevin.wordpress.com/2012/11/20/move-semantics/)
 - [C++11 rvalue References Explained](http://thbecker.net/articles/rvalue_references/section_01.html)
+- [Simple code demonstrating copy vs move penalty](https://eli.thegreenplace.net/2011/12/15/understanding-lvalues-and-rvalues-in-c-and-c#rvalue-references-c-11)
