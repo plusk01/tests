@@ -82,6 +82,8 @@ This allows move semantics. Also note that before C++11 it was the *Rule of Thre
 
 **Note**: There may be times when you want to force move semantics. You can do so with `std::move(x)`. By doing so, you are essentially telling the compiler "look, I know that this is an lvalue, but I want you to treat it as an rvalue for move semantics and I promise I won't use it anymore" (which would be bad because x will have NULL data in it after the move).
 
+**Note**: Double ampersands (as in `auto&&`) do not always mean an rvalue reference! See [Scott Meyers' explanation](https://isocpp.org/blog/2012/11/universal-references-in-c11-scott-meyers) of the *universal reference* (as coined by Scott), officially known as a *forwarding reference*.
+
 ---
 
 ### Resource ###
