@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.4)
+cmake_minimum_required(VERSION 3.2)
 project(http_image)
 
 set(CMAKE_CXX_STANDARD 11)
@@ -12,6 +12,13 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 #
 
 set(CPR_DIR ${CMAKE_CURRENT_BINARY_DIR}/cpr-download)
+
+# Don't build CPR tests and try to use the system libcurl (for speed)
+set(BUILD_CPR_TESTS OFF CACHE BOOL "Don't build cpr tests")
+find_package(CURL)
+if(CURL_FOUND)
+    set(USE_SYSTEM_CURL ON CACHE BOOL "Use the system curl for faster builds")
+endif()
 
 # Download pybind11
 configure_file(
@@ -27,9 +34,15 @@ add_subdirectory(${CPR_DIR}/src ${CPR_DIR}/build EXCLUDE_FROM_ALL)
 
 ###############################################################################
 
+find_package(Threads REQUIRED)
+
 # Include header files
 include_directories(${CPR_INCLUDE_DIRS})
 
 # Create the executables and link them to libs
 add_executable(main src/main.cpp)
 target_link_libraries(main ${CPR_LIBRARIES})
+
+# Create the executables and link them to libs
+add_executable(async src/async.cpp)
+target_link_libraries(async ${CPR_LIBRARIES} Threads::Threads)
