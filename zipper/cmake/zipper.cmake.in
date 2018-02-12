@@ -1,0 +1,14 @@
+cmake_minimum_required(VERSION 2.8.4)
+project(zipper-download NONE)
+
+include(ExternalProject)
+ExternalProject_Add(zipper
+  GIT_REPOSITORY    https://github.com/sebastiandev/zipper
+  GIT_TAG           541530f1082f109c28523cb5bc09453c498942ee # 24 July 2017
+  SOURCE_DIR        "${CMAKE_CURRENT_BINARY_DIR}/src"
+  BINARY_DIR        "${CMAKE_CURRENT_BINARY_DIR}/build"
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND     ""
+  INSTALL_COMMAND   ""
+  TEST_COMMAND      ""
+)

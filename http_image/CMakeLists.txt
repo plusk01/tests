@@ -46,3 +46,7 @@ target_link_libraries(main ${CPR_LIBRARIES})
 # Create the executables and link them to libs
 add_executable(async src/async.cpp)
 target_link_libraries(async ${CPR_LIBRARIES} Threads::Threads)
+
+# Create the executables and link them to libs
+add_executable(zipfile src/zipfile.cpp)
+target_link_libraries(zipfile ${CPR_LIBRARIES} Threads::Threads)
