@@ -8,6 +8,10 @@ class Element
 public:
     Element(double x) : x(x) {}
 
+    ~Element() {
+        std::cout << "Element " << x << "\t(" << ((flag)?"true":"false") << ") deconstructed." << std::endl;
+    }
+
     bool flag = false;
     double x;
 };
