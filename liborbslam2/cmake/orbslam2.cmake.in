@@ -1,0 +1,14 @@
+cmake_minimum_required(VERSION 2.8.4)
+project(orbslam2-download NONE)
+
+include(ExternalProject)
+ExternalProject_Add(orbslam2
+  GIT_REPOSITORY    https://github.com/Alkaid-Benetnash/ORB_SLAM2
+  GIT_TAG           c20f4f62e9fb83ea3a18d55d31d76b3396030167
+  SOURCE_DIR        "${CMAKE_CURRENT_BINARY_DIR}/src"
+  BINARY_DIR        "${CMAKE_CURRENT_BINARY_DIR}/build"
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND     ""
+  INSTALL_COMMAND   ""
+  TEST_COMMAND      ""
+)

@@ -1,0 +1,14 @@
+cmake_minimum_required(VERSION 2.8.4)
+project(pangolin-download NONE)
+
+include(ExternalProject)
+ExternalProject_Add(pangolin
+  GIT_REPOSITORY    https://github.com/stevenlovegrove/Pangolin
+  GIT_TAG           f499c390b282a3870ac9cc72e2a6675471103697
+  SOURCE_DIR        "${CMAKE_CURRENT_BINARY_DIR}/src"
+  BINARY_DIR        "${CMAKE_CURRENT_BINARY_DIR}/build"
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND     ""
+  INSTALL_COMMAND   ""
+  TEST_COMMAND      ""
+)
