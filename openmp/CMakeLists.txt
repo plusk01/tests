@@ -18,3 +18,11 @@ include_directories( ${OpenCV_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS} )
 # Create the executables and link them to libs
 add_executable(parfor src/parfor.cpp)
 target_link_libraries(parfor)
+
+# Create the executables and link them to libs
+add_executable(mandelbrot src/mandelbrot.cpp)
+target_link_libraries(mandelbrot)
+
+# Create the executables and link them to libs
+add_executable(playground src/playground.cpp)
+target_link_libraries(playground)
