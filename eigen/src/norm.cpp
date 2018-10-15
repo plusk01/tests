@@ -12,8 +12,12 @@ int main() {
 		 3, 4,
 	     5, 6;
 
-	cout << "The matrix A:" << endl;
-	cout << A << endl;
+     // The Frobenius matrix norm is the same as the 2-norm of
+     // a vectorized matrix, i.e., in MATLAB
+     // >> norm(A,'F') == norm(A(:),2)
+
+	cout << "The matrix A, Frobenius norm:" << endl;
+	cout << A << endl; 
 
 	VectorXd norms = A.rowwise().norm();
 
