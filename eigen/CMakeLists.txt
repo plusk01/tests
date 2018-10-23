@@ -31,3 +31,6 @@ target_link_libraries(perspective_transform)
 
 add_executable(idx_lookup src/idx_lookup.cpp)
 target_link_libraries(idx_lookup)
+
+add_executable(init src/init.cpp)
+target_link_libraries(init)
