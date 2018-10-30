@@ -34,3 +34,6 @@ target_link_libraries(idx_lookup)
 
 add_executable(init src/init.cpp)
 target_link_libraries(init)
+
+add_executable(eigensolver src/eigensolver.cpp)
+target_link_libraries(eigensolver)
