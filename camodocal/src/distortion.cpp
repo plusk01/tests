@@ -34,7 +34,7 @@ cv::Mat showUndistored(const cv::Mat& distorted) {
   std::vector<Eigen::Vector2d> pts_dist;    // these are pixels
   std::vector<Eigen::Vector2d> pts_undist;  // these are calibrated (bearing vectors)
 
-  // Create calibrated bearing vectors (using K) corresponding to each pixel position.
+  // Create calibrated bearing vectors (using K and undistorting) corresponding to each pixel position.
   for (int i=0; i<ROWS; ++i) {
     for (int j=0; j<COLS; ++j) {
       // calibrate pixel point to obtain bearing vector
@@ -48,7 +48,7 @@ cv::Mat showUndistored(const cv::Mat& distorted) {
     }
   }
 
-  // Take each bearing vector and reproject (using K) to a pixel position.
+  // Take each bearing vector and reproject (using K, but without distortion) to a pixel position.
   for (size_t i=0; i<pts_undist.size(); ++i) {
     int u, v;
 
