@@ -41,7 +41,7 @@ target_include_directories(${PROJECT_NAME}
     PRIVATE ${Boost_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS}
             ${EIGEN3_INCLUDE_DIRS} ${CERES_INCLUDE_DIRS}
     PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${OpenCV_LIBS})
+target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${OpenCV_LIBS} ${CERES_LIBRARIES})
 
 #
 # intrinsic calibration binary
