@@ -37,3 +37,6 @@ target_link_libraries(init)
 
 add_executable(eigensolver src/eigensolver.cpp)
 target_link_libraries(eigensolver)
+
+add_executable(fnargs src/fnargs.cpp)
+target_link_libraries(fnargs)
