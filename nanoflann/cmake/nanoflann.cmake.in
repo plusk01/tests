@@ -1,0 +1,14 @@
+cmake_minimum_required(VERSION 2.8.4)
+project(nanoflann-download NONE)
+
+include(ExternalProject)
+ExternalProject_Add(nanoflann
+  GIT_REPOSITORY    https://github.com/jlblancoc/nanoflann
+  GIT_TAG           527f73362e822b61f3624ce70f2b37a124f28c01 # 11 Oct 2018
+  SOURCE_DIR        "${CMAKE_CURRENT_BINARY_DIR}/src"
+  BINARY_DIR        "${CMAKE_CURRENT_BINARY_DIR}/build"
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND     ""
+  INSTALL_COMMAND   ""
+  TEST_COMMAND      ""
+)
