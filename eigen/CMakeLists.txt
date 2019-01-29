@@ -40,3 +40,6 @@ target_link_libraries(eigensolver)
 
 add_executable(fnargs src/fnargs.cpp)
 target_link_libraries(fnargs)
+
+add_executable(array src/array.cpp)
+target_link_libraries(array)
