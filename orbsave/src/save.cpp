@@ -86,8 +86,6 @@ void saveYAML(const std::vector<std::vector<cv::Mat>>& allDescriptors,
       }
       fs << "]";
       fs << "}";
-      // cv::write(fs, "descriptors_" + std::to_string(i), allDescriptors[i]);
-      // cv::write(fs, "keypoints_" + std::to_string(i), allPoints[i]);
     }
     fs << "]";
   }
