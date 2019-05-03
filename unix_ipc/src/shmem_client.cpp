@@ -11,13 +11,13 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
-#include <sys/mman.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
 
 class Client
 {
 public:
-  Client(const std::string path)
-  : path_(path)
+  Client()
   {
     if (!init()) {
       std::throw_with_nested(std::runtime_error("could not initialize"));
@@ -32,17 +32,20 @@ public:
     timeout.tv_sec += 3;
 
     // lock -- predicate (the mutex / condvar) -- unlock pattern
-    // TODO: catch spurious wakeups?
     pthread_mutex_lock(&msg_ptr_->mutex);
     int ret = pthread_cond_timedwait(&msg_ptr_->condvar, &msg_ptr_->mutex, &timeout);
 
     // we timed out!
     if (ret != 0) {
       pthread_mutex_unlock(&msg_ptr_->mutex);
+      // if we timed out, destroy so that server can create a new
+      // segment (if server has "IPC_EXCL" shmget flag).
+      // shmctl(shmid_, IPC_RMID, NULL);
       return false;
     }
 
     // copy data locally
+    msg->id = msg_ptr_->id;
     std::memcpy(&msg->id, &msg_ptr_->id, sizeof(msg->id));
     std::memcpy(&msg->pwm, &msg_ptr_->pwm, sizeof(msg->pwm));
     std::memcpy(&msg->t, &msg_ptr_->t, sizeof(msg->t));
@@ -52,23 +55,23 @@ public:
   }
 
 private:
-  const std::string path_;
+  int shmid_;
   msg_t * msg_ptr_ = nullptr;
 
   bool init()
   {
-    // Open the file with R/W permissions, create if it does not exist
-    const int fd = open(path_.c_str(), O_RDWR | O_CREAT, 0600);
-    if (fd == -1) return false;
+    // generates an arbitrary long based on stat info of file
+    key_t key = ftok("shmem_server", 'A');
 
-    // Stretch the file size to the desired size
-    if (posix_fallocate(fd, 0, sizeof(msg_t)) != 0) return false;
+    // create and connect to a shared memory segment (check with 'ipcs -m')
+    shmid_ = shmget(key, sizeof(msg_t), IPC_CREAT | S_IRUSR | S_IWUSR);
 
-    // Memory map the file with R/W permissions
-    void * ptr = mmap(0, sizeof(msg_t), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    // attach to the shared memory segment
+    void * ptr = shmat(shmid_, 0, 0);
     msg_ptr_ = reinterpret_cast<msg_t *>(ptr);
 
-    close(fd);
+    std::cout << "shmid: " << shmid_ << std::endl;
+
     return true;
   }
 
@@ -76,7 +79,11 @@ private:
 
   void deinit()
   {
-    munmap(reinterpret_cast<void *>(msg_ptr_), sizeof(msg_t));
+    // detach
+    shmdt(reinterpret_cast<void *>(msg_ptr_));
+
+    // destroy (server's job)
+    // shmctl(shmid_, IPC_RMID, NULL);
   }
     
 };
@@ -104,7 +111,7 @@ timespec diff(timespec start, timespec end)
 int main(int argc, char const *argv[])
 {
 
-  Client client("data.bin");
+  Client client;
 
   // keep track of how many messages were recvd
   uint32_t count = 0;
