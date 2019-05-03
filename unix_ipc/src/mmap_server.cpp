@@ -10,7 +10,7 @@
 #include <sys/types.h>
 #include <sys/mman.h>
 
-#include <sys/time.h>
+#include <time.h>
 #include <pthread.h>
 
 class Server
@@ -28,14 +28,26 @@ public:
     initMutex();
   }
 
-  ~Server() { deinit(); }
+  ~Server()
+  {
+    // n.b. order matters
+    deinitMutex();
+    deinitMMF();
+  }
 
   void send(const msg_t* msg)
   {
     pthread_mutex_lock(&msg_ptr_->mutex);
-    std::memcpy(&msg_ptr_->id, &msg->id, sizeof(msg->id));
-    std::memcpy(&msg_ptr_->pwm, &msg->pwm, sizeof(msg->pwm));
-    std::memcpy(&msg_ptr_->t, &msg->t, sizeof(msg->t));
+
+    // copy data to memory-mapped file
+    // std::memcpy(&msg_ptr_->id, &msg->id, sizeof(msg->id));
+    // std::memcpy(&msg_ptr_->pwm, &msg->pwm, sizeof(msg->pwm));
+    // std::memcpy(&msg_ptr_->t, &msg->t, sizeof(msg->t));
+
+    // signal client to read data
+    pthread_cond_signal(&msg_ptr_->condvar);
+
+    pthread_mutex_unlock(&msg_ptr_->mutex);
   }
 
 private:
@@ -48,24 +60,30 @@ private:
     const int fd = open(path_.c_str(), O_RDWR | O_CREAT, 0600);
     if (fd == -1) return false;
 
-    // Stretch the file size to the desired size (size-1 for write call)
-    if (lseek(fd, sizeof(msg_t)-1, SEEK_SET) == -1) return false;
-
-    // Write to the end of the file to commit to the new size
-    if (write(fd, "", 1) == -1) return false;
-
-    // TODO: Replace lseek and write with posix_fallocate?
+    // Stretch the file size to the desired size
+    // if (posix_fallocate(fd, 0, sizeof(msg_t)) != 0) return false;
 
     // Memory map the file with R/W permissions
     void * ptr = mmap(0, sizeof(msg_t), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     msg_ptr_ = reinterpret_cast<msg_t *>(ptr);
+
+    close(fd);
+    return true;
   }
 
   // --------------------------------------------------------------------------
 
-  void deinit()
+  void deinitMMF()
   {
     munmap(reinterpret_cast<void *>(msg_ptr_), sizeof(msg_t));
+  }
+
+  // --------------------------------------------------------------------------
+
+  void deinitMutex()
+  {
+    pthread_mutex_destroy(&msg_ptr_->mutex);
+    pthread_cond_destroy(&msg_ptr_->condvar);
   }
     
   // --------------------------------------------------------------------------
@@ -73,7 +91,8 @@ private:
   void initMutex()
   {
     // n.b.: this assumes that msg_ptr_ already points at allocated memory
-    //       (e.g., from initMMF)
+    //       (e.g., from initMMF).
+    //       Also, only the server will init and destroy mutex/condvar
 
     // mutex setup
     pthread_mutexattr_t mattr;
@@ -106,9 +125,11 @@ int main(int argc, char const *argv[])
     for (int j=0; j<NUM_PWM; ++j) {
       msg.pwm[j] =  i + j*0.1f + 0.01f;
     }
-    gettimeofday(&msg.t, NULL);
+    clock_gettime(CLOCK_MONOTONIC, &msg.t);
 
     server.send(&msg);
+
+    for (int j=0; j<1888008; ++j);
   }
 
 
