@@ -72,6 +72,8 @@ private:
     // zero everything out
     std::memset(msg_ptr_, 0, sizeof(msg_t));
 
+    std::cout << "created " << path_ << std::endl;
+
     close(fd);
     return true;
   }
@@ -139,7 +141,7 @@ int main(int argc, char const *argv[])
 
     std::cout << "sent " << msg.id << std::endl;
 
-    // std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
 
   std::cout << "done" << std::endl;

@@ -140,6 +140,7 @@ int main(int argc, char const *argv[])
     if (first) {
       first = false;
       id = msg.id;
+      std::cout << "Got first message: " << id << std::endl;
     }
 
     // make sure the message ids are synced
@@ -154,7 +155,7 @@ int main(int argc, char const *argv[])
     auto elapsed = diff(msg.t, t);
 
     double usec = elapsed.tv_sec/1e-6 + elapsed.tv_nsec*1e-3;
-    std::cout << "count (id): " << count << " (" << id << ") [" << usec << " usec]" << std::endl;
+    // std::cout << "count (id): " << count << " (" << id << ") [" << usec << " usec]" << std::endl;
 
     // time stats
     if (usec > max) max = usec;
