@@ -4,6 +4,7 @@
 #include <chrono>
 #include <stdexcept>
 #include <exception>
+#include <limits>
 
 #include "msg.h"
 
@@ -118,6 +119,10 @@ int main(int argc, char const *argv[])
   uint32_t id = 0;
   uint32_t missed = 0;
 
+  double min = std::numeric_limits<double>::max();
+  double max = std::numeric_limits<double>::min();
+  double avg = 0;
+
   bool first = true;
 
   while (true) {
@@ -151,12 +156,18 @@ int main(int argc, char const *argv[])
     double usec = elapsed.tv_sec/1e-6 + elapsed.tv_nsec*1e-3;
     std::cout << "count (id): " << count << " (" << id << ") [" << usec << " usec]" << std::endl;
 
+    // time stats
+    if (usec > max) max = usec;
+    if (usec < min) min = usec;
+    avg = 1.0/(count+1) * (count*avg + usec);
+
     id++;
     count++;
   }
 
   std::cout << "received " << count-missed << " messages." << std::endl;
   std::cout << "missed " << missed << " messages." << std::endl;
+  std::cout << "mean: " << avg << " us.  max: " << max << " us.  min: " << min << " us." << std::endl;
 
   return 0;
 }
