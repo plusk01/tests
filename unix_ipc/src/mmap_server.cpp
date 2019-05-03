@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
 #include <cstring>
+#include <chrono>
+#include <thread>
 
 #include "msg.h"
 
@@ -121,6 +123,8 @@ int main(int argc, char const *argv[])
 
   Server server("data.bin");
 
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+
   constexpr int MSG_COUNT = 1000;
 
   for (int i=0; i<MSG_COUNT; ++i) {
@@ -135,7 +139,7 @@ int main(int argc, char const *argv[])
 
     std::cout << "sent " << msg.id << std::endl;
 
-    for (int j=0; j<2888008; ++j);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 
   std::cout << "done" << std::endl;
