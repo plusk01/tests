@@ -8,8 +8,8 @@ set(CMAKE_BUILD_TYPE Debug)
 add_subdirectory(lib/csdp)
 
 # Create the executables and link them to libs
-add_executable(main src/main.cpp)
-target_link_libraries(main csdp)
+add_executable(lp src/lp.cpp)
+target_link_libraries(lp csdp)
 
 add_executable(example src/example.c)
 target_link_libraries(example csdp)
