@@ -1,0 +1,75 @@
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8 Unicode
+
+\documentclass[a4paper]{article}
+
+\usepackage{xltxtra}
+\usepackage{amsfonts}
+\usepackage{polyglossia}
+\usepackage{fancyhdr}
+\usepackage{geometry}
+\usepackage{dsfont}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{physics}
+\usepackage{mathtools}
+\usepackage{bm}
+\usepackage[hidelinks]{hyperref}
+
+\geometry{a4paper,left=15mm,right=15mm,top=20mm,bottom=20mm}
+\pagestyle{fancy}
+\lhead{Parker C. Lusk}
+\chead{Reformulating Optimizations for CSDP}
+\rhead{\today}
+\cfoot{\thepage}
+
+\setlength{\headheight}{23pt}
+% \setlength{\parindent}{0.0in}
+\setlength{\parskip}{0.03in}
+
+\newtheorem*{prop}{Proposition}
+\newtheorem*{defn}{Definition}
+\newtheorem*{thm}{Theorem}
+\newtheorem*{cor}{Corollary}
+\newtheorem*{lem}{Lemma}
+\newtheorem*{rem}{Remark}
+
+\DeclarePairedDelimiterX{\inn}[2]{\langle}{\rangle}{#1, #2}
+
+\begin{document}
+\section*{Overview}
+CSDP is a solver for semidefinite programming (SDP) problems.
+It was originally written in 1997 and its C implementation continues to be periodically supported by the original author, Brian Borchers.
+Using the ASCII SDPA format\footnote{\url{http://plato.asu.edu/ftp/sdpa_format.txt}}, SDPs can be easily passed to the solver.
+Alternatively, problems can be directly encoded via its C API.
+
+The purpose of this document is to give examples of how to reformulate SDPs into the form that CSDP accepts (either SDPA or its C interface).
+This often requires algebraic manipulation to write the problem in the primal SDP form as specified in the CSDP User Guide\footnote{\url{https://github.com/coin-or/Csdp/files/2485526/csdpuser.pdf}}.
+Note that CSDP can work with matrices that have both symmetric blocks and diagonal blocks.
+The use of diagonal blocks are particularly useful for encoding and solving linear programs (LP).
+
+CSDP solves semidefinite programming primal--dual problems of the form
+\begin{equation*}
+\begin{aligned}
+\mathcal{P}: \quad && \max_{X\in\mathbb{S}^n}          \quad & \tr(CX) \\
+                   && \textrm{s.t.} \quad & \tr(A_iX) = b_i, \;\forall i\in[m] \\
+                   &&                     & X \succeq 0 \\
+\mathcal{D}: \quad && \min          \quad & b^\top y \\
+                   && \textrm{s.t.} \quad & \sum_{i=1}^m y_i A_i - C = Z\\
+                   &&                     & Z \succeq 0,
+\end{aligned}
+\end{equation*}
+where $C$, $A_i$, $y$, $b$.
+Note that different packages and presentations of primal--dual SDP problems may differ slightly.
+
+
+
+
+
+
+% \begin{thebibliography}{9}
+
+% \end{thebibliography}
+
+\end{document}
