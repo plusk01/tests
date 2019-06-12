@@ -36,6 +36,14 @@
  *      F2 = diag([10 28 6 15 0 1 0 0 -1 0])
  *      F3 = diag([10 16 16 0 0 0 1 0 0 -1])
  *
+ *  Therefore, the SDP formulation of this LMI (which encodes the LP) is
+ *  
+ *      max <diag(F0), X>
+ *      st  <F1, X> = 45 = b1
+ *          <F2, X> = 60 = b2
+ *          <F3, X> = 50 = b3
+ *          X >= 0 (p.s.d)
+ *
  */
 #include <iostream>
 #include <string>
