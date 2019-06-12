@@ -30,7 +30,7 @@
  *  
  *  Let b = [45 60 50] and x = [p q r]. Then
  *  
- *      F0 = diag([2400 2400 2400 2400  100 40 60  0 0 0])
+ *      F0 = -diag([2400 2400 2400 2400  100 40 60  0 0 0])
  *  
  *      F1 = diag([20 12 15 10 1 0 0 -1 0 0])
  *      F2 = diag([10 28 6 15 0 1 0 0 -1 0])
@@ -248,6 +248,13 @@ int main(int argc, char** argv)
   }
 
   write_sol("prob.sol", 10, 3, X, y, Z);
+
+  std::cout << std::endl << std::endl;
+  std::cout << std::string(80,'=') << std::endl;
+  std::cout << "p* = -y[1] = " << -y[1] << std::endl;
+  std::cout << "q* = -y[2] = " << -y[2] << std::endl;
+  std::cout << "r* = -y[3] = " << -y[3] << std::endl;
+
 
   free_prob(10, 3, C, b, constraints, X, y, Z);
 

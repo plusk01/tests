@@ -3,6 +3,8 @@
 
 \documentclass[a4paper]{article}
 
+\usepackage[hidelinks]{hyperref}
+\usepackage[bottom]{footmisc}
 \usepackage{xltxtra}
 \usepackage{amsfonts}
 \usepackage{polyglossia}
@@ -15,7 +17,6 @@
 \usepackage{physics}
 \usepackage{mathtools}
 \usepackage{bm}
-\usepackage[hidelinks]{hyperref}
 
 \geometry{a4paper,left=15mm,right=15mm,top=20mm,bottom=20mm}
 \pagestyle{fancy}
@@ -36,6 +37,7 @@
 \newtheorem*{rem}{Remark}
 
 \DeclarePairedDelimiterX{\inn}[2]{\langle}{\rangle}{#1, #2}
+\DeclareMathOperator{\diag}{diag}
 
 \begin{document}
 \section*{Overview}
@@ -49,23 +51,122 @@ This often requires algebraic manipulation to write the problem in the primal SD
 Note that CSDP can work with matrices that have both symmetric blocks and diagonal blocks.
 The use of diagonal blocks are particularly useful for encoding and solving linear programs (LP).
 
+Semidefinite programming is a subfield of convex optimization.
+These problems are defined as optimizing a linear objective function with respect to linear constraints over the space of real symmetric $n\times n$ matrices, $\mathbb{S}^n$.
 CSDP solves semidefinite programming primal--dual problems of the form
 \begin{equation*}
 \begin{aligned}
-\mathcal{P}: \quad && \max_{X\in\mathbb{S}^n}          \quad & \tr(CX) \\
-                   && \textrm{s.t.} \quad & \tr(A_iX) = b_i, \;\forall i\in[m] \\
-                   &&                     & X \succeq 0 \\
-\mathcal{D}: \quad && \min          \quad & b^\top y \\
-                   && \textrm{s.t.} \quad & \sum_{i=1}^m y_i A_i - C = Z\\
+\mathcal{P}: \quad && \max_{X\in\mathbb{S}^n}                 \quad & \tr(CX) \\
+                   && \textrm{s.t. } \quad & \tr(A_iX) = b_i, \;\forall i\in[m] \\
+                   &&                     & X \succeq 0 \\ \\
+\mathcal{D}: \quad && \min_{\substack{y\in\mathbb{R}^n\\Z\in\mathbb{S}^n}}\quad & b^\top y \\
+                   && \textrm{s.t. } \quad & \sum_{i=1}^m y_i A_i - C = Z\\
                    &&                     & Z \succeq 0,
 \end{aligned}
 \end{equation*}
-where $C$, $A_i$, $y$, $b$.
-Note that different packages and presentations of primal--dual SDP problems may differ slightly.
+where $C, A_1,\dots,A_m\in\mathbb{S}^n$, $y,b\in\mathbb{R}^3$.
+Note that different packages and presentations of primal--dual SDP problems may differ slightly; for example, the min and the max may be swapped, or the constraint in the dual may not have the explicit decision variable $Z$ and instead write $\sum_i y_i A_i - C\succeq 0$.
 
+To put SDPs in context with other convex optimizations, note the following hierarchy\footnote{\href{http://www.princeton.edu/~amirali/Public/Teaching/ORF523/S16/ORF523_S16_Lec9_gh.pdf}{Princeton \texttt{ORF 523 Notes}}}
+\begin{equation*}
+\text{LP}\subseteq\text{QP}\subseteq\text{QCQP}\subseteq\text{SOCP}\subseteq\text{SDP}.
+\end{equation*}
 
+\section*{Linear Matrix Inequalities}
 
+\section*{Reformulating an LP as an SDP}
+Any LP is a special instance of an SDP\footnote{\href{http://www.stat.cmu.edu/~ryantibs/convexopt-F13/lectures/18-semidefiniteprogramming.pdf}{Slide 13 \texttt{CMU 10-725}}}, in particular its dual (as defined in this document).
+Given the following LP
+\begin{equation}\label{eq:general-lp}
+\begin{split}
+\min_{y\in\mathbb{R}^n}  \quad & b^\top y\\
+\textrm{s.t. } \quad & Ay + c \ge 0,
+\end{split}
+\end{equation}
+where $b\in\mathbb{R}^n$, $A\in\mathbb{R}^{m\times n}$, and $c\in\mathbb{R}^m$, it can be written as the dual SDP
+\begin{equation}\label{eq:general-lp-sdp}
+\begin{split}
+\min_{y\in\mathbb{R}^n}  \quad & b^\top y\\
+\textrm{s.t. } \quad & F(y) \succeq 0,
+\end{split}
+\end{equation}
+where $F(y) = F_0 + y_1F_1 + \dots + y_nF_n$ is an LMI.
+Given that $A = \begin{bmatrix}a_1 & \dots & a_n\end{bmatrix}\in\mathbb{R}^{m\times n}$, the definitions of $F_i$ are as follows
+\begin{align*}
+F_0 &= \diag(c) \\
+F_i &= \diag(a_i),\;\forall i\in[n].
+\end{align*}
+Note that
+\begin{align}
+F(y) &= \diag(\{c_j + y_1 a_{1j} + \dots + y_n a_{nj}\}^m_{j=1}) \\
+     &= \diag(c^\top + y^\top A^\top) = \diag(Ay + c).
+\end{align}
 
+\subsection*{Example}
+Consider the following LP\footnote{Slide 16 of \href{https://ocw.mit.edu/courses/sloan-school-of-management/15-053-optimization-methods-in-management-science-spring-2013/tutorials/MIT15_053S13_tut01.pdf}{\texttt{MIT OCW 15.053 Lecure Notes}}.}
+\begin{equation}\label{eq:example-lp}
+\begin{split}
+\max_{p,q,r\in\mathbb{R}}  \quad & z = 45p + 60q + 50r \\
+\textrm{s.t. } \quad &
+  \begin{aligned}[t]
+    20p + 10q + 10r &\le 2400 \\
+    12p + 28q + 16r &\le 2400 \\
+    15p + \hphantom{0}6q  + 16r &\le 2400 \\
+    20p + 15q \hphantom{{}+{}00r} &\le 2400 \\
+    0 \le p &\le 100 \\
+    0 \le q &\le 40 \\
+    0 \le r &\le 60
+  \end{aligned}
+\end{split}
+\end{equation}
+where the optimal solution is $p^*=81.82$, $q^*=16.36$, and $r^*=60$.
+The optimal objective value is $z^*=7664$.
+
+It turns out that an LP is really a special case of an SDP where all the matrices are diagonal (positive semidefiniteness for a diagonal matrix means nonnegativity of its diagonal elements).
+Our goal is to formulate this as an SDP so that we can use the CSDP solver.
+To do this, we observe that the LP (particularly, the objective) is most like the dual part of this primal--dual SDP pair (i.e., the primary decision variable of the dual is $y\in\mathbb{R}^n$, which is like our LP).
+
+First, we massage the constraints of~\eqref{eq:example-lp} into a form that looks more like the dual SDP
+\begin{equation}
+\begin{split}
+\min_{p,q,r\in\mathbb{R}}  \quad & z = 45p + 60q + 50r \\
+\textrm{s.t. } \quad &
+  \begin{aligned}[t]
+    20p + 10q + 10r + 2400 &\ge 0\\
+    12p + 28q + 16r + 2400 &\ge 0\\
+    15p + \hphantom{0}6q  + 16r + 2400 &\ge 0\\
+    20p + 15q \hphantom{{}+{}00r} + 2400 &\ge 0\\
+    p + 100 &\ge 0 \\
+    q + 40 &\ge 0 \\
+    r + 60 &\ge 0 \\
+    -p + 0 &\ge 0 \\
+    -q + 0 &\ge 0 \\
+    -r + 0 &\ge 0 \\
+  \end{aligned}
+\end{split}\;.
+\end{equation}
+Note that we did three things: (1) rearranged the inequalities so that $0$ is on the RHS; (2) flipped the sign of the objective so that the problem is a min. Simultaneously, we redefined $p$, $q$, and $r$ to be their negative. This way, the resulting objective has plus signs and each term of the constraints (except the last three constraints) are negative; (3) flipped the sign of the inequalities by multiplying both sides by $-1$.
+
+By pattern matching, we make the following assignments
+\begin{align*}
+y &= \begin{bmatrix}p & q & r\end{bmatrix}^\top; \qquad b = \begin{bmatrix}40 & 60 & 50\end{bmatrix}^\top \\
+C &= -\diag(\begin{bmatrix}2400 & 2400 & 2400 & 2400 & 100 & 40 & 60 & 0 & 0 & 0\end{bmatrix}) \\
+A_1 &= \diag(\begin{bmatrix}20 & 12 & 15 & 20 & 1 & 0 & 0 & -1 & 0 & 0\end{bmatrix}) \\
+A_2 &= \diag(\begin{bmatrix}10 & 28 & 6 & 15 & 0 & 1 & 0 & 0 & -1 & 0\end{bmatrix}) \\
+A_2 &= \diag(\begin{bmatrix}10 & 16 & 16 & 0 & 0 & 0 & 1 & 0 & 0 & -1\end{bmatrix}).
+\end{align*}
+Thus, the following primal problem that encodes LP~\eqref{eq:example-lp} can be input into CSDP\footnote{\href{https://github.com/plusk01/tests/blob/master/csdp/src/lp.cpp}{\texttt{lp.cpp}}}
+\begin{equation}
+\begin{aligned}
+\max_{X\in\mathbb{S}^n}                 \quad & \tr(CX) \\
+\textrm{s.t. } \quad & \tr(A_1X) = b_1 = 45 \\
+                     & \tr(A_2X) = b_2 = 60 \\
+                     & \tr(A_2X) = b_3 = 50 \\
+                     & X \succeq 0.
+\end{aligned}
+\end{equation}
+Note that CSDP provides the optimal values of $X$, $y$, and $Z$.
+The values we are interested in are in $y$, because we reformulated LP~\eqref{eq:example-lp} as the dual.
 
 
 % \begin{thebibliography}{9}
