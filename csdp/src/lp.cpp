@@ -68,15 +68,15 @@ int main(int argc, char** argv)
     return 2;
   }
 
-  C.blocks[1].data.vec[1] = 2400.0;
-  C.blocks[1].data.vec[2] = 2400.0;
-  C.blocks[1].data.vec[3] = 2400.0;
-  C.blocks[1].data.vec[4] = 2400.0;
-  C.blocks[1].data.vec[5] = 100.0;
-  C.blocks[1].data.vec[6] = 40.0;
-  C.blocks[1].data.vec[7] = 60.0;
-  C.blocks[1].data.vec[8] = 0.0;
-  C.blocks[1].data.vec[9] = 0.0;
+  C.blocks[1].data.vec[1] = -2400.0;
+  C.blocks[1].data.vec[2] = -2400.0;
+  C.blocks[1].data.vec[3] = -2400.0;
+  C.blocks[1].data.vec[4] = -2400.0;
+  C.blocks[1].data.vec[5] = -100.0;
+  C.blocks[1].data.vec[6] = -40.0;
+  C.blocks[1].data.vec[7] = -60.0;
+  C.blocks[1].data.vec[8] =  0.0;
+  C.blocks[1].data.vec[9] =  0.0;
   C.blocks[1].data.vec[10] = 0.0;
 
   //
