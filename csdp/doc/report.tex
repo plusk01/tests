@@ -59,13 +59,13 @@ CSDP solves semidefinite programming primal--dual problems of the form
 \mathcal{P}: \quad && \max_{X\in\mathbb{S}^n}                 \quad & \tr(CX) \\
                    && \textrm{s.t. } \quad & \tr(A_iX) = b_i, \;\forall i\in[m] \\
                    &&                     & X \succeq 0 \\ \\
-\mathcal{D}: \quad && \min_{\substack{y\in\mathbb{R}^m\\Z\in\mathbb{S}^m}}\quad & b^\top y \\
+\mathcal{D}: \quad && \min_{\substack{y\in\mathbb{R}^m\\Z\in\mathbb{S}^n}}\quad & b^\top y \\
                    && \textrm{s.t. } \quad & \sum_{i=1}^m y_i A_i - C = Z\\
                    &&                     & Z \succeq 0,
 \end{aligned}
 \end{equation*}
-where $C, A_1,\dots,A_m\in\mathbb{S}^n$, $y,b\in\mathbb{R}^3$.
-Note that different packages and presentations of primal--dual SDP problems may differ slightly; for example, the min and the max may be swapped, or the constraint in the dual may not have the explicit decision variable $Z$ and instead write $\sum_i y_i A_i - C\succeq 0$.
+where $C, A_1,\dots,A_m\in\mathbb{S}^n$, $y,b\in\mathbb{R}^m$.
+Note that different packages and presentations of primal--dual SDP problems may differ slightly; for example, the min and the max may be swapped, or the constraint in the dual may not have the explicit decision variable $Z$ and instead write $\sum_{i=1}^m y_i A_i - C\succeq 0$.
 
 To put SDPs in context with other convex optimizations, note the following hierarchy\footnote{\href{http://www.princeton.edu/~amirali/Public/Teaching/ORF523/S16/ORF523_S16_Lec9_gh.pdf}{Princeton \texttt{ORF 523 Notes}}}
 \begin{equation*}
@@ -73,56 +73,56 @@ To put SDPs in context with other convex optimizations, note the following hiera
 \end{equation*}
 
 \section*{Linear Matrix Inequalities}
-A linear matrix inequality (LMI) in variable $x\in\mathbb{R}^n$ has the form\footnote{\href{https://stanford.edu/class/ee363/sessions/s4notes.pdf}{\texttt{EE363 Notes}}}
+A linear matrix inequality (LMI) in variable $y\in\mathbb{R}^m$ has the form\footnote{\href{https://stanford.edu/class/ee363/sessions/s4notes.pdf}{\texttt{EE363 Notes}}}
 \begin{equation}
-F(x) = F_0 + x_1F_1 + \dots + x_nF_n \succeq 0,
+F(y) = F_0 + y_1F_1 + \dots + y_mF_m \succeq 0,
 \end{equation}
-where $F_0,\dots,F_n\in\mathbb{S}^m$, and specifies a convex constraint on $x$.
-Many inequalities can be represented as LMIs, for example
+where $F_0,\dots,F_m\in\mathbb{S}^n$, and specifies a convex constraint on $y$.
+Many inequalities can be represented as LMIs, for example, for $d_i,z\in\mathbb{R}^N$ and $f\in\mathbb{R}^M$
 \begin{equation*}
-a_i^\top x \le b_i,\;\forall i\in[m],
+d_i^\top z \le f_i,\;\forall i\in[M],
 \end{equation*}
 can be expressed as the LMI
 \begin{equation*}
 \begin{bmatrix}
-b_1 - a_1^\top x &       0          & \cdots &    0   \\
-      0          & b_2 - a_2^\top x & \cdots &    0   \\
+f_1 - d_1^\top z &       0          & \cdots &    0   \\
+      0          & f_2 - d_2^\top z & \cdots &    0   \\
    \vdots        &     \vdots       & \ddots & \vdots \\
-      0          &       0          & \cdots & b_m - a_m^\top x
+      0          &       0          & \cdots & f_M - d_M^\top z
 \end{bmatrix} \succeq 0.
 \end{equation*}
 Similarly, if we wish to express the equality constraints
 \begin{equation*}
-a_i^\top x = b_i,\;\forall i\in[m],
+d_i^\top z = f_i,\;\forall i\in[M],
 \end{equation*}
-with variable $x\in\mathbb{R}^3$ as an LMI, we could split the constraints into the pairs of inequalities
+with variable $z\in\mathbb{R}^N$ as an LMI, we could split the constraints into the pairs of inequalities
 \begin{equation*}
-a_i^\top x \le b_i, \quad a_i^\top x \ge b_i,\quad\forall i\in[m],
+d_i^\top z \le f_i, \quad d_i^\top z \ge f_i,\quad\forall i\in[M],
 \end{equation*}
 and use the same LMI form from above
 \begin{equation*}
-\diag(\begin{bmatrix}b_1-a_1^\top x & \cdots & b_m-a_m^\top x & a_1^\top x - b_1 & \cdots & a_m^\top x - b_m \end{bmatrix}) \succeq 0.
+\diag(\begin{bmatrix}f_1-d_1^\top z & \cdots & f_M-d_M^\top z & d_1^\top z - f_1 & \cdots & d_M^\top z - f_M \end{bmatrix}) \succeq 0.
 \end{equation*}
 
 \subsection*{Example}
-Let $x\in\mathbb{R}^2$ with data
+Let $z\in\mathbb{R}^2$ with data
 \begin{align*}
-A &= \begin{bmatrix}0&4\\1&-1\\3&2\end{bmatrix}\in\mathbb{R}^{3\times 2} \\
-b &= \begin{bmatrix}8&7&9\end{bmatrix}^\top\in\mathbb{R}^3.
+D &= \begin{bmatrix}0&4\\1&-1\\3&2\end{bmatrix}\in\mathbb{R}^{3\times 2} \\
+f &= \begin{bmatrix}8&7&9\end{bmatrix}^\top\in\mathbb{R}^3.
 \end{align*}
-We can extract the rows of $A$ as $A^\top = \begin{bmatrix}a_1^\top & a_2^\top & a_3^\top\end{bmatrix}\in\mathbb{R}^{2\times 3}$.
+We can extract the rows of $D$ as $D^\top = \begin{bmatrix}d_1^\top & d_2^\top & d_3^\top\end{bmatrix}\in\mathbb{R}^{2\times 3}$.
 Writing out the constraints
 \begin{equation*}
 \begin{split}
-\hphantom{0x_1{}+{}} 4x_2 &\le 8 \\
-\hphantom{0}x_1 - \hphantom{0}x_2 &\le 7 \\
-3x_1 + 2x_2 &\le 9
+\hphantom{0z_1{}+{}} 4z_2 &\le 8 \\
+\hphantom{0}z_1 - \hphantom{0}z_2 &\le 7 \\
+3z_1 + 2z_2 &\le 9
 \end{split}
 \quad\iff\quad
 \begin{split}
-8 - \hphantom{0x_1{}+{}} 4x_2 &\ge 0 \\
-7 - \hphantom{0}x_1 + \hphantom{0}x_2 &\ge 0 \\
-9 - 3x_1 - 2x_2 &\ge 0
+8 - \hphantom{0z_1{}+{}} 4z_2 &\ge 0 \\
+7 - \hphantom{0}z_1 + \hphantom{0}z_2 &\ge 0 \\
+9 - 3z_1 - 2z_2 &\ge 0
 \end{split}\;,
 \end{equation*}
 it is clear to see that an LMI can be written as above.
@@ -132,31 +132,31 @@ Any LP is a special instance of an SDP\footnote{\href{http://www.stat.cmu.edu/~r
 Given the following LP
 \begin{equation}\label{eq:general-lp}
 \begin{split}
-\min_{y\in\mathbb{R}^n}  \quad & b^\top y\\
+\min_{y\in\mathbb{R}^m}  \quad & b^\top y\\
 \textrm{s.t. } \quad & Ay + c \ge 0,
 \end{split}
 \end{equation}
-where $b\in\mathbb{R}^n$, $A\in\mathbb{R}^{m\times n}$, and $c\in\mathbb{R}^m$, it can be written as the dual SDP
+where $b\in\mathbb{R}^m$, $A\in\mathbb{R}^{n\times m}$, and $c\in\mathbb{R}^n$, it can be written as the dual SDP
 \begin{equation}\label{eq:general-lp-sdp}
 \begin{split}
-\min_{y\in\mathbb{R}^n}  \quad & b^\top y\\
+\min_{y\in\mathbb{R}^m}  \quad & b^\top y\\
 \textrm{s.t. } \quad & F(y) \succeq 0,
 \end{split}
 \end{equation}
-where $F(y) = F_0 + y_1F_1 + \dots + y_nF_n$ is an LMI.
-Given that $A = \begin{bmatrix}a_1 & \dots & a_n\end{bmatrix}\in\mathbb{R}^{m\times n}$, the definitions of $F_i$ are as follows
+where $F(y) = F_0 + y_1F_1 + \dots + y_mF_m$ is an LMI.
+Given that $A = \begin{bmatrix}a_1 & \dots & a_m\end{bmatrix}\in\mathbb{R}^{n\times m}$, the definitions of $F_i$ are as follows
 \begin{align*}
-F_0 &= \diag(c) \in\mathbb{S}^m \\
-F_i &= \diag(a_i) \in\mathbb{S}^m,\;\forall i\in[n].
+F_0 &= \diag(c) \in\mathbb{S}^n \\
+F_i &= \diag(a_i) \in\mathbb{S}^n,\;\forall i\in[m].
 \end{align*}
 Note that
 \begin{align}
-F(y) &= \diag(\{c_j + y_1 a_{1j} + \dots + y_n a_{nj}\}^m_{j=1}) \\
+F(y) &= \diag(\{c_j + y_1 a_{1j} + \dots + y_m a_{mj}\}^n_{j=1}) \\
      &= \diag(c^\top + y^\top A^\top) = \diag(Ay + c).
 \end{align}
 
 \subsection*{Example}
-Consider the following LP\footnote{Slide 16 of \href{https://ocw.mit.edu/courses/sloan-school-of-management/15-053-optimization-methods-in-management-science-spring-2013/tutorials/MIT15_053S13_tut01.pdf}{\texttt{MIT OCW 15.053 Lecure Notes}}.}
+Consider the following LP\footnote{Slide 16 of \href{https://ocw.mit.edu/courses/sloan-school-of-management/15-053-optimization-methods-in-management-science-spring-2013/tutorials/MIT15_053S13_tut01.pdf}{\texttt{MIT OCW 15.053 Lecure Notes}}.}, with $m=3$ and $n=10$
 \begin{equation}\label{eq:example-lp}
 \begin{split}
 \max_{p,q,r\in\mathbb{R}}  \quad & z = 45p + 60q + 50r \\
@@ -202,11 +202,11 @@ Note that we did three things: (1) rearranged the inequalities so that $0$ is on
 
 By pattern matching, we make the following assignments
 \begin{align*}
-y &= \begin{bmatrix}p & q & r\end{bmatrix}^\top; \qquad b = \begin{bmatrix}40 & 60 & 50\end{bmatrix}^\top \\
-C &= -\diag(\begin{bmatrix}2400 & 2400 & 2400 & 2400 & 100 & 40 & 60 & 0 & 0 & 0\end{bmatrix}) \\
-A_1 &= \diag(\begin{bmatrix}20 & 12 & 15 & 20 & 1 & 0 & 0 & -1 & 0 & 0\end{bmatrix}) \\
-A_2 &= \diag(\begin{bmatrix}10 & 28 & 6 & 15 & 0 & 1 & 0 & 0 & -1 & 0\end{bmatrix}) \\
-A_2 &= \diag(\begin{bmatrix}10 & 16 & 16 & 0 & 0 & 0 & 1 & 0 & 0 & -1\end{bmatrix}).
+y &= \begin{bmatrix}p & q & r\end{bmatrix}^\top\in\mathbb{R}^m; \qquad b = \begin{bmatrix}40 & 60 & 50\end{bmatrix}^\top\in\mathbb{R}^m \\
+C &= -\diag(\begin{bmatrix}2400 & 2400 & 2400 & 2400 & 100 & 40 & 60 & 0 & 0 & 0\end{bmatrix})\in\mathbb{S}^n \\
+A_1 &= \diag(\begin{bmatrix}20 & 12 & 15 & 20 & 1 & 0 & 0 & -1 & 0 & 0\end{bmatrix})\in\mathbb{S}^n \\
+A_2 &= \diag(\begin{bmatrix}10 & 28 & 6 & 15 & 0 & 1 & 0 & 0 & -1 & 0\end{bmatrix})\in\mathbb{S}^n \\
+A_2 &= \diag(\begin{bmatrix}10 & 16 & 16 & 0 & 0 & 0 & 1 & 0 & 0 & -1\end{bmatrix})\in\mathbb{S}^n.
 \end{align*}
 Thus, the following primal problem that encodes LP~\eqref{eq:example-lp} can be input into CSDP\footnote{\href{https://github.com/plusk01/tests/blob/master/csdp/src/lp.cpp}{\texttt{lp.cpp}}}
 \begin{equation}
@@ -221,6 +221,7 @@ Thus, the following primal problem that encodes LP~\eqref{eq:example-lp} can be 
 Note that CSDP provides the optimal values of $X$, $y$, and $Z$.
 The values we are interested in are in $y$, because we reformulated LP~\eqref{eq:example-lp} as the dual.
 
+\section*{Eigenvalue Optimization}
 
 % \begin{thebibliography}{9}
 
