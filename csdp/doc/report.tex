@@ -17,6 +17,7 @@
 \usepackage{physics}
 \usepackage{mathtools}
 \usepackage{bm}
+\usepackage{listings}
 
 \geometry{a4paper,left=15mm,right=15mm,top=20mm,bottom=20mm}
 \pagestyle{fancy}
@@ -71,6 +72,19 @@ To put SDPs in context with other convex optimizations, note the following hiera
 \begin{equation*}
 \text{LP}\subseteq\text{QP}\subseteq\text{QCQP}\subseteq\text{SOCP}\subseteq\text{SDP}.
 \end{equation*}
+
+% \section*{SPDA Sparse ASCII Format}
+% Before getting too much into the technical and theoretical aspects of SDP reformulations, we present the SDPA format.
+% \begin{equation*}
+% \begin{split}
+% \min_{y\in\mathbb{R}^m}   \quad & b^\top y \\
+% \textrm{s.t.} \quad &
+%   \begin{aligned}[t]
+%     \sum_{i=1}^m y_i A_i - C &= Z \\
+%     Z &\succeq 0
+%   \end{aligned}
+% \end{split}\;,
+% \end{equation*}
 
 \section*{Linear Matrix Inequalities}
 A linear matrix inequality (LMI) in variable $y\in\mathbb{R}^m$ has the form\footnote{\href{https://stanford.edu/class/ee363/sessions/s4notes.pdf}{\texttt{EE363 Notes}}}
@@ -222,6 +236,98 @@ Note that CSDP provides the optimal values of $X$, $y$, and $Z$.
 The values we are interested in are in $y$, because we reformulated LP~\eqref{eq:example-lp} as the dual.
 
 \section*{Eigenvalue Optimization}
+Consider the task of minimizing the maximum eigenvalue of a symmetric matrix.
+This is useful in many cases, including optimizing for the characteristics of dynamical systems.
+Using the LMI $A(y)$, the problem can be stated as
+\begin{equation*}
+\begin{split}
+\min_{y\in\mathbb{R}^m}  \quad & \lambda_{\max}(A(y))
+\end{split}\;.
+\end{equation*}
+Writing this as an SDP involves the epigraph formulation, where we introduce a new decision variable, $t\in\mathbb{R}$
+\begin{equation*}
+\begin{split}
+\min_{y,\;t}   \quad & t \\
+\textrm{s.t.} \quad &
+  \begin{aligned}[t]
+    \lambda_{\max}(A(y)) &\le t\\
+  \end{aligned}
+\end{split}
+\qquad\iff\qquad
+\begin{split}
+\min_{y,\;t}   \quad & t \\
+\textrm{s.t.} \quad &
+  \begin{aligned}[t]
+    A(y) &\preceq t\\
+  \end{aligned}
+\end{split}
+\end{equation*}
+By minimizing $t$, the max eigenvalue of $A(y)$ is constrained to decrease.
+Observe that we can use the language of semidefinite matrices to express the constraint as an SDP.
+
+\subsection*{Example\footnote{\href{https://engineering.purdue.edu/~jianghai/Teaching/ECE695/Lec_05.pdf}{Slide 12 \texttt{Purdue ECE695 Lecture}}}}
+We can use an LMI to formulate the following max-eig minimization as an SDP
+\begin{equation*}
+\begin{split}
+\min_{y\in\mathbb{R}^2}   \quad & \lambda_{\max}\left(\begin{bmatrix}1+y_1 & y_2-3 \\ y_2-3 & -y+1+2y_2\end{bmatrix}\right)
+\end{split}
+\quad\iff\quad
+\begin{split}
+\min_{y,\;t}   \quad & t \\
+\textrm{s.t.} \quad &
+  \begin{aligned}[t]
+    \begin{bmatrix}1&-3\\-3&0\end{bmatrix} +
+    y_1 \begin{bmatrix}1&0\\0&-1\end{bmatrix} +
+    y_2 \begin{bmatrix}0&1\\1&2\end{bmatrix} \preceq tI_2
+  \end{aligned}
+\end{split}\;.
+\end{equation*}
+Note that we can go all the way down to the standard dual form
+\begin{equation*}
+\begin{split}
+\min_{y\in\mathbb{R}^m}   \quad & b^\top y \\
+\textrm{s.t.} \quad &
+  \begin{aligned}[t]
+    \sum_{i=1}^m y_i A_i - C &= Z \\
+    Z &\succeq 0
+  \end{aligned}
+\end{split}\;,
+\end{equation*}
+by augmenting the decision variable vector $y=\begin{bmatrix}y_1 & y_2 & t\end{bmatrix}^\top\in\mathbb{R}^3$, flipping the p.s.d constraint direction, and making the following definitions
+\begin{equation*}
+b = \begin{bmatrix}0 & 0 & 1\end{bmatrix}^\top
+\end{equation*}
+\begin{align*}
+A_1 = \begin{bmatrix}-1&0\\0&1\end{bmatrix}\in\mathbb{S}^2
+\qquad
+A_2 = \begin{bmatrix}0&-1\\-1&-2\end{bmatrix}\in\mathbb{S}^2
+\qquad
+A_3 = \begin{bmatrix}1&0\\0&1\end{bmatrix}\in\mathbb{S}^2
+\qquad
+C   = \begin{bmatrix}1&-3\\-3&0\end{bmatrix}\in\mathbb{S}^2.
+\end{align*}
+
+For the sake of completeness, we give the SPDA sparse ASCII format of this problem, which can be read into CSDP via the command line\footnote{As opposed to above, which can be entered using the CSDP C API.}.
+\begin{figure}[b!]
+\centering
+\begin{tabular}{c}
+\begin{lstlisting}[]
+"max-eig minimization problem
+3 =m
+1 =num blocks
+2 =size of individual blocks
+0 0 1 =bvec
+0 1 1 1   1
+0 1 1 2  -3
+1 1 1 1  -1
+1 1 2 2   1
+2 1 1 2  -1
+2 1 2 2  -2
+3 1 1 1   1
+3 1 2 2   1
+\end{lstlisting}
+\end{tabular}
+\end{figure}
 
 % \begin{thebibliography}{9}
 
