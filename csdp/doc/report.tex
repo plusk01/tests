@@ -87,11 +87,14 @@ To put SDPs in context with other convex optimizations, note the following hiera
 % \end{equation*}
 
 \section*{Linear Matrix Inequalities}
-A linear matrix inequality (LMI) in variable $y\in\mathbb{R}^m$ has the form\footnote{\href{https://stanford.edu/class/ee363/sessions/s4notes.pdf}{\texttt{EE363 Notes}}}
+A linear matrix inequality (LMI) in variable $y\in\mathbb{R}^m$ has the form\footnote{\href{https://stanford.edu/class/ee363/sessions/s4notes.pdf}{\texttt{Stanford EE363 Notes}}}
 \begin{equation}
 F(y) = F_0 + y_1F_1 + \dots + y_mF_m \succeq 0,
 \end{equation}
 where $F_0,\dots,F_m\in\mathbb{S}^n$, and specifies a convex constraint on $y$.
+Note that for $\sum_i y_iA_i-C$ to equal $F(y)$, $F_0:=-C$.
+This small detail will likely cause sign errors in various places.
+
 Many inequalities can be represented as LMIs, for example, for $d_i,z\in\mathbb{R}^N$ and $f\in\mathbb{R}^M$
 \begin{equation*}
 d_i^\top z \le f_i,\;\forall i\in[M],
@@ -308,7 +311,7 @@ C   = \begin{bmatrix}1&-3\\-3&0\end{bmatrix}\in\mathbb{S}^2.
 \end{align*}
 
 For the sake of completeness, we give the SPDA sparse ASCII format of this problem, which can be read into CSDP via the command line\footnote{As opposed to above, which can be entered using the CSDP C API.}.
-\begin{figure}[b!]
+\begin{figure}[bh!]
 \centering
 \begin{tabular}{c}
 \begin{lstlisting}[]
@@ -328,6 +331,78 @@ For the sake of completeness, we give the SPDA sparse ASCII format of this probl
 \end{lstlisting}
 \end{tabular}
 \end{figure}
+
+\section*{Spectral Norm Minimization\footnote{\url{https://math.stackexchange.com/a/2137408/481663}}}
+Given the LMI $A(y)$, we would like to minimize its maximum singular value, $\|A(y)\|_2=\sigma_{\max}\left(A(y)\right)$.
+This can be done via the following convex optimization
+\begin{equation}\label{eq:spectral-min}
+\begin{split}
+\min_{y\in\mathbb{R}^m}  \quad & \left\lVert A(y)\right\rVert_2
+\end{split}.
+\end{equation}
+As in the \textbf{Eigenvalue Optimization} section, we first rewrite the problem in epigraph form with the new decision variable, $s\in\mathbb{R}$
+\begin{equation}\label{eq:spectral-min-epigraph}
+\begin{split}
+\min_{y,\;s}   \quad & s \\
+\textrm{s.t.} \quad &
+  \begin{aligned}[t]
+    \left\lVert A(y)\right\rVert_2 &\le s\\
+  \end{aligned}
+\end{split}
+\end{equation}
+Focusing just on the constraint, we have the following equivalences
+\begin{align*}
+\{\left\lVert A(y)\right\rVert_2 \le s\}
+&= \left\{\sigma_{\max}\left(A(y)\right) \le s\right\} = \left\{\lambda_{\max}\left(A(y)^\top A(y)\right) \le s^2\right\} \\
+&= \left\{s^2 - \lambda_{\max}\left(A(y)^\top A(y)\right) \ge 0\right\} \\
+&= \left\{s^2 + \lambda_{\min}\left(-A(y)^\top A(y)\right) \ge 0\right\} \\
+&= \left\{\lambda_{\min}\left(s^2 I_m - A(y)^\top A(y)\right) \ge 0\right\} \\
+&= \left\{s^2 I_m - A(y)^\top A(y) \succeq 0\right\}.
+\end{align*}
+This last constraint definitely looks like what we want.
+However, while it is a convex positive semidefinite constraint, it is currently expressed as quadratic in the decision variables and needs to be reformulated to be an SDP.
+Dividing both sides by $s>0$, we have
+\begin{equation}\label{eq:schur-constraint}
+s I_m - A(y)^\top (sI_m)^{-1} A(y) \succeq 0.
+\end{equation}
+It is only fitting\footnote{It's a `Schur' thing.} that a Schur complement would show up here.
+Recall\footnote{Page 2, \href{https://stanford.edu/class/ee363/sessions/s4notes.pdf}{\texttt{Stanford EE363 Notes}}} that given a matrix
+\begin{equation*}
+X =
+\begin{bmatrix}A&B\\B^\top&C\end{bmatrix}\in\mathbb{R}^{k\times k},
+\end{equation*}
+if $A\in\mathbb{R}^{l\times l}\succ0$, then $X\succeq0\iff S=C-B\top A^{-1}B\succeq0$.
+Therefore, we can write constraint~\eqref{eq:schur-constraint} as the LMI
+\begin{equation}\label{eq:schur-lmi-constraint}
+\begin{bmatrix}sI_m&A(y)\\A(y)^\top&sI_m\end{bmatrix} \succeq 0
+\end{equation}
+Note that in this analysis, we have not leveraged the symmetry of $A(y)$ (i.e., constraint~\eqref{eq:schur-lmi-constraint} works if $A(y)$ is non-symmetric).
+If $A(y)$ is symmetric (as it is in this case since it is an LMI), we can formulate the constraint in a different way.
+First, observe\footnote{Comments, \url{https://math.stackexchange.com/a/3075970/481663}} that for a symmetric matrix $Z$,
+\begin{equation}
+\sigma_{\max}\left(Z\right) = \max\left\{ -\lambda_{\min}\left(Z\right), \lambda_{\max}\left(Z\right) \right\}
+\end{equation}
+Therefore, if $A(y)$ is symmetric, we can immediately write problem~\eqref{eq:spectral-min-epigraph} as
+\begin{equation}
+\begin{split}
+\min_{y,\;s}   \quad & s \\
+\textrm{s.t.} \quad &
+  \begin{aligned}[t]
+    -sI_m \preceq A(y) \preceq sI_m
+  \end{aligned}
+\end{split}
+\end{equation}
+which can be rewritten as
+\begin{equation}\label{eq:spectral-symmetric}
+\begin{split}
+\min_{y,\;s}   \quad & s \\
+\textrm{s.t.} \quad &
+  \begin{aligned}[t]
+    \begin{bmatrix}sI_m-A(y)&0_m\\0_m&sI_m+A(y)\end{bmatrix} \succeq 0
+  \end{aligned}
+\end{split}\;.
+\end{equation}
+Note that~\eqref{eq:spectral-symmetric} should be preferred over~\eqref{eq:schur-lmi-constraint} because a pair of LMIs is more performant than one twice the size.
 
 % \begin{thebibliography}{9}
 
