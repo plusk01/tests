@@ -16,6 +16,14 @@
 #include <time.h>
 #include <pthread.h>
 
+// ctrl+c handler
+#include <cstdlib>
+#include <csignal>
+
+// interrupt signal (ctrl+c) handler
+volatile sig_atomic_t stop = 0;
+void handle_sigint(int s) { stop = 1; }
+
 class Server
 {
 public:
@@ -120,16 +128,41 @@ private:
 // ============================================================================
 // ============================================================================
 
+timespec diff(timespec start, timespec end)
+{
+  timespec temp;
+  if ((end.tv_nsec-start.tv_nsec)<0) {
+    // rollover in seconds
+    temp.tv_sec = end.tv_sec-start.tv_sec-1;
+    temp.tv_nsec = 1000000000+end.tv_nsec-start.tv_nsec;
+  } else {
+    temp.tv_sec = end.tv_sec-start.tv_sec;
+    temp.tv_nsec = end.tv_nsec-start.tv_nsec;
+  }
+  return temp;
+}
+
+// ============================================================================
+// ============================================================================
+
 int main(int argc, char const *argv[])
 {
+  // register sigint handler
+  signal(SIGINT, handle_sigint);
 
   Server server;
 
   std::this_thread::sleep_for(std::chrono::seconds(1));
 
+  double min = std::numeric_limits<double>::max();
+  double max = std::numeric_limits<double>::min();
+  double avg = 0;
+
   constexpr int MSG_COUNT = 1000;
 
-  for (int i=0; i<MSG_COUNT; ++i) {
+  // for (int i=0; i<MSG_COUNT; ++i) {
+  uint32_t i = 0;
+  while (!stop) {
     msg_t msg;
     msg.id = i;
     for (int j=0; j<NUM_PWM; ++j) {
@@ -139,13 +172,26 @@ int main(int argc, char const *argv[])
 
     server.send(&msg);
 
-    std::cout << "sent " << msg.id << std::endl;
+    // calculate time to send
+    struct timespec t;
+    clock_gettime(CLOCK_MONOTONIC, &t);
+    auto elapsed = diff(msg.t, t);
+    double usec = elapsed.tv_sec/1e-6 + elapsed.tv_nsec*1e-3;
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    // time stats
+    if (usec > max) max = usec;
+    if (usec < min) min = usec;
+    avg = 1.0/(i+1) * (i*avg + usec);
 
+    i++; // inc count
+    std::cout << "sent " << msg.id << " in " << usec << " usec" << std::endl;
+    std::this_thread::sleep_for(std::chrono::milliseconds(2));
   }
 
   std::cout << "done" << std::endl;
+
+  std::cout << "sent " << i << " messages." << std::endl;
+  std::cout << "mean: " << avg << " us.  max: " << max << " us.  min: " << min << " us." << std::endl;
 
   return 0;
 }

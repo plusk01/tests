@@ -15,6 +15,14 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
+// ctrl+c handler
+#include <cstdlib>
+#include <csignal>
+
+// interrupt signal (ctrl+c) handler
+volatile sig_atomic_t stop = 0;
+void handle_sigint(int s) { stop = 1; }
+
 class Client
 {
 public:
@@ -111,6 +119,8 @@ timespec diff(timespec start, timespec end)
 
 int main(int argc, char const *argv[])
 {
+  // register sigint handler
+  signal(SIGINT, handle_sigint);
 
   Client client;
 
@@ -125,7 +135,7 @@ int main(int argc, char const *argv[])
 
   bool first = true;
 
-  while (true) {
+  while (!stop) {
 
     // time we started waiting at
     auto start = std::chrono::steady_clock::now();
@@ -161,6 +171,10 @@ int main(int argc, char const *argv[])
     if (usec > max) max = usec;
     if (usec < min) min = usec;
     avg = 1.0/(count+1) * (count*avg + usec);
+
+    if (usec > 3000) {
+      std::cout << "usec: " << usec << std::endl;
+    }
 
     id++;
     count++;
