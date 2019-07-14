@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "abstract.h"
 
 class MmapClient : public Client
