@@ -2,6 +2,10 @@
 
 #include <Eigen/Dense>
 
+#include <opencv2/core.hpp>
+#include <opencv2/core/eigen.hpp>
+
+
 using namespace std;
 using namespace Eigen;
 
@@ -38,6 +42,15 @@ int main() {
 
   // 3x4 matrix
   std::cout << T3.affine().matrix() << std::endl;
+
+// --------------------------------------------------------------------------
+  std::cout << std::endl << std::endl;
+// --------------------------------------------------------------------------
+
+  cv::Mat matT3;
+  Eigen::Matrix<double, 3, 4> TT = T3.affine();
+  cv::eigen2cv(TT, matT3);
+  std::cout << matT3 << std::endl;
 
   return 0;
 }
