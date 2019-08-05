@@ -43,3 +43,6 @@ target_link_libraries(fnargs)
 
 add_executable(array src/array.cpp)
 target_link_libraries(array)
+
+add_executable(geometry src/geometry.cpp)
+target_link_libraries(geometry)
