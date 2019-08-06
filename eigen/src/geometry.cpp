@@ -52,5 +52,16 @@ int main() {
   cv::eigen2cv(TT, matT3);
   std::cout << matT3 << std::endl;
 
+// --------------------------------------------------------------------------
+  std::cout << std::endl << std::endl;
+// --------------------------------------------------------------------------
+
+  cv::Mat m = cv::Mat::eye(3, 4, CV_64FC1);
+  Eigen::Map<Eigen::Matrix<double, 3, 4, Eigen::RowMajor>> result(m.ptr<double>(), m.rows, m.cols);
+
+  result = (T2.inverse()*T3).affine().matrix();
+
+  std::cout << m << std::endl;
+
   return 0;
 }
