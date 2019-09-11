@@ -24,6 +24,18 @@ int main() {
   // T1.translation() = (VectorXd(3) << 0.7, 1.0, 56.2).finished();
   std::cout << T1.matrix() << std::endl;
 
+  std::cout << std::endl;
+  std::cout << T1.rotation() << std::endl;
+
+  Quaterniond q(T1.rotation());
+  std::cout << "[x y z w]" << std::endl;
+  std::cout << q.coeffs() << std::endl;
+  std::cout << std::endl;
+  std::cout << q.coeffs().x() << std::endl;
+  std::cout << q.coeffs().y() << std::endl;
+  std::cout << q.coeffs().z() << std::endl;
+  std::cout << q.coeffs().w() << std::endl;
+
 // --------------------------------------------------------------------------
   std::cout << std::endl << std::endl;
 // --------------------------------------------------------------------------
@@ -34,7 +46,10 @@ int main() {
   Affine3d T3 = Affine3d::Identity();
   T3.translation() = (VectorXd(3) << 5, -5, 0).finished();
 
-  std::cout << (T2.inverse()*T3).matrix() << std::endl;
+  auto T4 = (T2.inverse()*T3);
+  std::cout << T4.matrix() << std::endl;
+
+  std::cout << T4.translation().x() << std::endl;
 
 // --------------------------------------------------------------------------
   std::cout << std::endl << std::endl;
