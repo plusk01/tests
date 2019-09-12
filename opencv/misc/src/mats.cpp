@@ -35,6 +35,25 @@ int main(int argc, char** argv)
     std::cout << "dims: " << test2.dims << std::endl;
     std::cout << "channels: " << test2.channels() << std::endl;
 
-    return 0;        
+    // ------------------------------------------------------------------------
+    // reshape mat
+    // ------------------------------------------------------------------------
+
+    cv::Point2f pix {10.0, 99.3};
+    cv::Mat pixMat = cv::Mat(pix);
+
+    std::cout << pixMat.type() << std::endl;
+    std::cout << pixMat.rows << "x" << pixMat.cols << std::endl;
+    std::cout << "dims: " << pixMat.dims << std::endl;
+    std::cout << "channels: " << pixMat.channels() << std::endl;
+
+    std::cout << "Reshaped:" << std::endl;
+    cv::Mat pixMatReshaped = pixMat.reshape(2);
+    std::cout << pixMatReshaped.rows << "x" << pixMatReshaped.cols << std::endl;
+    std::cout << "dims: " << pixMatReshaped.dims << std::endl;
+    std::cout << "channels: " << pixMatReshaped.channels() << std::endl;
+    std::cout << pixMatReshaped << std::endl;
+
+    return 0;
 }
 
