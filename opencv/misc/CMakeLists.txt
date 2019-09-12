@@ -14,3 +14,6 @@ include_directories( ${OpenCV_INCLUDE_DIRS} )
 add_executable(mats src/mats.cpp)
 target_link_libraries(mats ${OpenCV_LIBS})
 
+add_executable(info src/info.cpp)
+target_link_libraries(info ${OpenCV_LIBS})
+
