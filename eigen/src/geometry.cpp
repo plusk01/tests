@@ -36,6 +36,10 @@ int main() {
   std::cout << q.coeffs().z() << std::endl;
   std::cout << q.coeffs().w() << std::endl;
 
+  Vector3d x = (Vector3d() << 1, 2, 3).finished();
+  Vector3d y = T1*x;
+  std::cout << "y^T: " << y.transpose() << std::endl;
+
 // --------------------------------------------------------------------------
   std::cout << std::endl << std::endl;
 // --------------------------------------------------------------------------
