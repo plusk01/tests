@@ -138,6 +138,9 @@ int main( int argc, char** argv )
   gettimeofday( &toc, 0 );
   double ransac_time = TIMETODOUBLE(timeval_minus(toc,tic));
 
+  std::vector<double> scores;
+  relposeproblem_ptr->getSelectedDistances(ransac.model_coefficients_, ransac.inliers_, scores);
+
   //print the results
   std::cout << "the ransac threshold is: " << ransac.threshold_ << std::endl;
   std::cout << "the ransac results is: " << std::endl;
