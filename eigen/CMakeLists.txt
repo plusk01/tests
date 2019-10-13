@@ -46,3 +46,6 @@ target_link_libraries(array)
 
 add_executable(geometry src/geometry.cpp)
 target_link_libraries(geometry ${OpenCV_LIBS})
+
+add_executable(reflections src/reflections.cpp)
+target_link_libraries(reflections)
