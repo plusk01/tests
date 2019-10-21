@@ -5,6 +5,8 @@
  * @date 15 Oct 20
  */
 
+#include <memory>
+
 #include <ros/ros.h>
 #include <ros/callback_queue.h>
 #include <ros/spinner.h>
@@ -37,8 +39,14 @@ public:
     // we will service the task callback queue by a pool of threads.
     // We use an AsyncSpinner instead of MultiThreadedSpinner so that
     // we can still have a main loop in the spin() method.
-    spinner_ = std::make_unique<ros::AsyncSpinner>(2, &task_queue_);
+    spinner_.reset(new ros::AsyncSpinner(2, &task_queue_));
     // spinner_->start(); // note: don't start until we have data to process
+
+    // (method 2) instead of stop/start spinner, stop/start timer
+    // This allows spinner to service other callbacks
+    tim_taskA_.stop();
+    tim_taskB_.stop();
+    spinner_->start();
 
     // Note: for preemption: https://answers.ros.org/question/250331/how-to-thread-a-specific-computationally-expensive-callback
 
@@ -53,13 +61,17 @@ public:
 
       if (processNewData) {
         // stop tasks B and C
-        spinner_->stop();
+        // spinner_->stop();
+        tim_taskA_.stop();
+        tim_taskB_.stop();
 
         // do some heavy lifting
         ros::Duration(3).sleep();
 
         // allow downstream tasks to continue
-        spinner_->start();
+        // spinner_->start();
+        tim_taskA_.start();
+        tim_taskB_.start();        
 
         processNewData = false;
       }
