@@ -49,3 +49,6 @@ target_link_libraries(geometry ${OpenCV_LIBS})
 
 add_executable(reflections src/reflections.cpp)
 target_link_libraries(reflections)
+
+add_executable(graphutils src/graphutils.cpp)
+target_link_libraries(graphutils)
