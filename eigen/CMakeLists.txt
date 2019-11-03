@@ -52,3 +52,6 @@ target_link_libraries(reflections)
 
 add_executable(graphutils src/graphutils.cpp)
 target_link_libraries(graphutils)
+
+add_executable(mapinout src/mapinout.cpp)
+target_link_libraries(mapinout)
