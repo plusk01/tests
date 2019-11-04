@@ -52,5 +52,17 @@ int main() {
   std::cout << iperm.toDenseMatrix() << std::endl;
   std::cout << "indices: " << iperm.indices().transpose() << std::endl;
 
+  // convert to std vector
+  Eigen::Matrix<uint, Dynamic, Dynamic> mat = perm.indices();
+  // https://stackoverflow.com/a/26094708/2392520
+  std::vector<uint> v; v.resize(mat.size());
+  Eigen::Matrix<uint, Dynamic, 1>::Map(&v[0], v.size()) = mat;
+  // or: https://stackoverflow.com/a/26094702/2392520
+  // v = std::vector<uint>(mat.data(), mat.data() + mat.size());
+
+  std::cout << "vector: ";
+  for (size_t i=0; i<v.size(); ++i) std::cout << v[i] << " ";
+  std::cout << std::endl;
+
   return 0;
 }
