@@ -82,5 +82,40 @@ int main() {
 
   std::cout << m << std::endl;
 
+// --------------------------------------------------------------------------
+  std::cout << std::endl << std::endl;
+// --------------------------------------------------------------------------
+
+  {
+    Matrix3d R;
+    R << -0.4096,    0.5636,    0.7173,
+          0.7846,   -0.1835,    0.5922,
+          0.4654,    0.8054,   -0.3671;
+
+    {
+      Quaterniond q(R);
+      std::cout << "w " << q.coeffs().w() << std::endl;
+      std::cout << "x " << q.coeffs().x() << std::endl;
+      std::cout << "y " << q.coeffs().y() << std::endl;
+      std::cout << "z " << q.coeffs().z() << std::endl;
+    }
+
+    // now, extract ZYX intrinsic
+    Vector3d eul = R.eulerAngles(2, 1, 0);
+    std::cout << "eul (ZYX intrinsic): " << eul.transpose() << std::endl;
+    Quaterniond q = AngleAxisd(eul[0], Vector3d::UnitZ())
+                  * AngleAxisd(eul[1], Vector3d::UnitY())
+                  * AngleAxisd(eul[2], Vector3d::UnitX());
+    std::cout << std::endl;
+    std::cout << q.toRotationMatrix() << std::endl << std::endl;
+
+    // make a yaw-only quat
+    Quaterniond qyaw(AngleAxisd(eul[0], Vector3d::UnitZ()));
+    std::cout << std::endl;
+    std::cout << qyaw.toRotationMatrix() << std::endl << std::endl;
+
+  }
+
   return 0;
 }
+// 2.0519   -0.4841    1.9984
