@@ -33,9 +33,9 @@ target_link_libraries(csdp PUBLIC ${LAPACK_LIBRARIES} m)
 #         ARCHIVE DESTINATION lib
 #         RUNTIME DESTINATION bin)
 
-# add_executable(csdp solver/csdp.c)
-# target_link_libraries(csdp libcsdp)
-# install(TARGETS csdp DESTINATION bin)
+add_executable(csdpsolver ${CSDP_SRCDIR}/solver/csdp.c)
+target_link_libraries(csdpsolver csdp)
+install(TARGETS csdpsolver DESTINATION bin)
 
 # add_executable(theta theta/theta.c)
 # target_link_libraries(theta libcsdp)
