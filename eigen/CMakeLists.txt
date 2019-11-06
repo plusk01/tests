@@ -55,3 +55,6 @@ target_link_libraries(graphutils)
 
 add_executable(mapinout src/mapinout.cpp)
 target_link_libraries(mapinout)
+
+add_executable(arun src/arun.cpp)
+target_link_libraries(arun)
