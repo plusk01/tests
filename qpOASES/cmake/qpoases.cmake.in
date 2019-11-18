@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 2.8.4)
+project(qpoases-download NONE)
+
+include(ExternalProject)
+ExternalProject_Add(qpoases
+    URL                 https://www.coin-or.org/download/source/qpOASES/qpOASES-3.2.1.zip
+    SOURCE_DIR          "${CMAKE_CURRENT_BINARY_DIR}/src"
+    BINARY_DIR          "${CMAKE_CURRENT_BINARY_DIR}/build"
+    CMAKE_ARGS          -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/install
+)

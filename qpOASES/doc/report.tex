@@ -1,0 +1,286 @@
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8 Unicode
+
+\documentclass[10pt]{article}
+
+\usepackage{graphicx}
+\usepackage[small,bf]{caption}
+
+\usepackage[hidelinks]{hyperref}
+\usepackage[bottom]{footmisc}
+% \usepackage{xltxtra}
+\usepackage{amsfonts}
+% \usepackage{polyglossia}
+\usepackage{fancyhdr}
+\usepackage{geometry}
+% \usepackage{dsfont}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+% \usepackage{physics}
+% \usepackage{mathtools}
+% \usepackage{bm}
+% \usepackage{listings}
+\usepackage{booktabs}
+
+\input{math}
+
+\newtheorem{theorem}{Theorem}
+
+\geometry{a4paper,left=15mm,right=15mm,top=20mm,bottom=20mm}
+\pagestyle{fancy}
+\lhead{Parker C. Lusk}
+\chead{QPs, qpOASES, and MPC}
+\rhead{\today}
+\cfoot{\thepage}
+
+% \setlength{\headheight}{23pt}
+% \setlength{\parindent}{0.0in}
+% \setlength{\parskip}{0.03in}
+
+% \DeclarePairedDelimiterX{\inn}[2]{\langle}{\rangle}{#1, #2}
+
+\begin{document}
+\section*{Overview}
+Quadratic programming (QP) is a very useful form of convex optimization.
+It consists of a quadratic objective with linear constraints.
+Because it is convex, if the constraint set is feasible, the global minimum is guaranteed to be found.
+Further, QPs can be solved very quickly and are amenable for real-time processing.
+
+Many problems in optimal control can be formulated with a quadratic objective and linear constraints.
+In particular, (linear) model predictive control (MPC) can be formulated as a QP which can be efficiently solved using existing solvers.
+In this report, we give an overview of quadratic programming and the \texttt{qpOASES}\footnote{\url{https://projects.coin-or.org/qpOASES}} solver from COIN-OR.
+Additionally, we give examples of MPC, where QPs naturally arise.
+
+\section*{QP Formulation}
+A quadratic programming problem with $n$ variables and $m$ constraints can be formulated as
+\begin{equation}\label{eq:standard-qp}
+\begin{aligned}
+& \underset{\x}{\text{minimize}}
+& & \frac{1}{2}\x^\top Q\x + \c^\top\x \\
+& \text{subject to}
+& & A\x \leq \b,
+\end{aligned}
+\end{equation}
+where $x\in\reals^n$ is the optimization variable and $Q\in\symm^n_+$ (symmetric, p.s.d.), $\c\in\reals^n$, $A\in\reals^{m\times n}$, and $\b\in\reals^m$ are the problem data.
+Note: if we were maximizing, we would want $Q\in\symm^n_-$ (n.s.d.) or $\symm^n_{--}$ (n.d.).
+
+\section*{Least Squares}
+A common problem is to fit data to some model, i.e., regression.
+Given a batch of measurements $\mathbf{y}\in\reals^m$, we wish to find the parameters $\x\in\reals^n$ of some model $f:\reals^n\to\reals^m$ so that $f(\x)=\mathbf{y}$.
+In linear regression, $f(\x)=A\x$ with $A\in\reals^{m\times n}$.
+When the columns of $A$ are linearly independent and $m>n$, there are ``more equations than unknowns'', implying that there is no unique solution\footnote{As opposed to the \textit{rows} of A being l.i. with $m<n$, which implies that there are infinitely many solutions (min norm).} $\x^*$.
+We call the system of equations \textit{overdetermined}.
+A common approach is then to find the ``best fit''---the $\x^*$ that minimizes the squared norm of the residual $\|\mathbf{r}\|^2_2=\|A\x-\mathbf{y}\|^2_2$.
+This is known as the least squares solution.
+
+There are two main methods of derivation: one uses the principle of orthogonality from linear algebra and the other is the usual calculus method of optimization.
+Here, we will leverage the calculus method to solve
+\begin{equation}\label{eq:ls-quadform}
+\underset{\x}{\min}\quad \frac{1}{2}\|\mathbf{r}\|^2_2 = \frac{1}{2}\mathbf{r}^\top\mathbf{r}
+= \frac{1}{2}(A\x-\mathbf{y})^\top(A\x-\mathbf{y})
+= \frac{1}{2} \x^\top A^\top A\x - \mathbf{y}^\top A\x + \frac{1}{2}\mathbf{y}^\top\mathbf{y}.
+\end{equation}
+By setting the Jacobian\footnote{\href{http://michael.orlitzky.com/articles/the_derivative_of_a_quadratic_form.xhtml}{The Derivative of a Quadratic Form}} of the residual to zero, we can solve directly for the minimizer:
+\begin{align}\label{eq:ls-qp-jacobian}
+\frac{\partial}{\partial\x}\frac{1}{2}\|\mathbf{r}\|^2_2 = A^\top A\x^* - A^\top\mathbf{y} &= 0 \\
+A^\top A\x^* &= A^\top\mathbf{y} \nonumber\\
+\x^* &= (A^\top A)^{-1}A^\top\mathbf{y} \nonumber\\
+\x^* &= A^\dagger\mathbf{y}, \nonumber
+\end{align}
+where $A^\dagger$ is the left Moore-Penrose pseudoinverse.
+
+Note from equation~\eqref{eq:ls-quadform} that minimizing the residual in the least-squares sense actually involves the quadratic form
+\begin{equation}
+J(\x) = \frac{1}{2}\x^\top Q\x + \c^\top\x,
+\end{equation}
+where the $\mathbf{y}^\top\mathbf{y}$ term is constant w.r.t $\x$ and is ignored, $\c=-A^\top\mathbf{y}$ and $Q=A^\top A$ is symmetric positive-definite by construction\footnote{The product $A^\top A$ is a Gram matrix, which is made up of inner products. Therefore, all Gram matrices are positive semidefinite. The Gram matrix is invertible if and only if the set of vectors are linearly independent. Since we required the columns of $A$ to be linearly independent, we see that $\det(A^\top A)\neq0$.}.
+Hence, the least squares problem~\eqref{eq:ls-quadform} can be formulated as an unconstrained QP~\eqref{eq:standard-qp}.
+Even constrained least squares problems can be reformulated as QPs\footnote{\href{https://math.stackexchange.com/questions/869204/are-constrained-linear-least-squares-and-quadratic-programming-the-same-thin}{SE.Math Post}}.
+However, the converse is not true: since a standard QP only requires that $Q\in\symm^n_+$, there may not be a Cholesky decomposition into an invertible Gram matrix $A^\top A$.
+
+\section*{Graphical Examples\footnote{\href{https://ecal.berkeley.edu/files/ce191/CH02-QuadraticProgramming.pdf}{UC Berkeley, CE 191}}}
+Consider the following QP
+\begin{equation}\label{eq:ex-graphical-qp}
+\begin{aligned}
+& \underset{x_1,\ x_2}{\text{minimize}}
+& & (x_1 - 2)^2 + (x_2 - 2)^2 \\
+& \text{subject to}
+& & 2x_1 + 4x_2 \leq 28 \\
+&&& 5x_1 + 5x_2 \leq 50 \\
+&&& \hphantom{000{}+{}0} x_1 \leq 8 \\
+&&& \hphantom{000{}+{}0} x_2 \leq 8 \\
+&&& \hphantom{000{}+{}0} x_1 \geq 0 \\
+&&& \hphantom{000{}+{}0} x_2 \geq 0.
+\end{aligned}
+\end{equation}
+As this QP is a function of two variables, it can be solved graphically by plotting the contour lines of the quadratic form along with the linear constraints.
+In linear programming, the optimum is always found on the boundary of the feasible set.
+In QPs, the optimal solution may be in the interior of the feasible set (as is the case for problem~\eqref{eq:ex-graphical-qp}) or it may be on the boundary.
+
+\section*{Optimality Conditions for Unconstrained Optimization}
+Recall the following result from single-variable calculus:
+\begin{theorem}[Rudin 5.8]
+Let $f$ be a real-valued function defined on $[a, b]$. If f has a local minimum at a point $x\in(a,b)$ and $f'(x)$ exists, then $f'(x)=0$.
+\end{theorem}
+\begin{proof}
+Assume $x$ is a local minimum of $f$.
+Then there exists a $\delta>0$ such that $f(p)\leq f(x)$ for all $p$ with $|p-x|<\delta$.
+Given this $\delta$, we have that $a < x-\delta < x < x+\delta < b$.
+
+If $x-\delta < p < x$, then
+\begin{equation*}
+\frac{f(p) - f(x)}{p - x} \leq 0.
+\end{equation*}
+As $p\to x$, we see that $f'(x)\leq0$.
+
+If $x < p < x+\delta$, then
+\begin{equation*}
+\frac{f(p) - f(x)}{p - x} \geq 0,
+\end{equation*}
+and as $p\to x$, we see that $f'(x)\geq0$.
+Hence, $f'(x)=0$.
+\end{proof}
+
+We claim without proof that this condition is also true for multivariate calculus.
+In fact, we have already used this result when solving for the least squares solution in equation~\eqref{eq:ls-qp-jacobian}.
+We call this condition the \textit{first-order necessary condition} for optimality.
+
+However, this condition is not sufficient to determine if $\x^*$ is a minimizer, maximizer, or stationary point.
+So how were we guaranteed that this was the correct $\x^*$ in the least squares discussion above?
+In fact, how could we claim in the introduction that if a convex QP is feasible its global minimizer can always be found?
+To answer these questions, we must use the \textit{second-order sufficient condition} for optimality.
+
+Again using single-variable calculus as a reference, recall that the second derivative of a function can reveal if a stationary point is a minimizer, maximizer, or neither.
+For a single-variable function $f$, the stationary point $x^*$ is characterized as
+\begin{align*}
+\text{a minimizer}\quad &\text{if}\quad f''(x^*) > 0, \\
+\text{a maximizer}\quad &\text{if}\quad f''(x^*) < 0, \\
+\text{an inflection point}\quad &\text{if}\quad f''(x^*) = 0.
+\end{align*}
+The second derivative of the multivariable function is called the Hessian.
+Without proof, we claim that it is sufficient to show that if the Hessian is positive definite, then a stationary point $\x^*$ is the unique global minimizer.
+If instead the Hessian is positive semidefinite, then there is a valley of solutions.
+The relationship between the Hessian of a function and the nature of a stationary point $\x^*$ is summarized in Table~\ref{tbl:hessian}.
+\begin{table}
+\centering
+\caption{Hessian and the nature of stationary point $\x^*$}
+\label{tbl:hessian}
+\begin{tabular}{@{} ll @{}} \toprule
+Hessian Matrix Definiteness & Nature of $\x^*$ \\\midrule
+positive definite & minimizer \\
+positive semidefinite & valley \\
+negative definite & maximizer \\
+negative semidefinite & ridge \\
+indefinite & saddle point
+\end{tabular}
+\end{table}
+
+Therefore, to answer the question posed about whether or not the solution $\x^*$ found from least squares is guaranteed to be the global minimizer, we calculate the Hessian of equation~\eqref{eq:ls-quadform} as
+\begin{equation}
+\frac{\partial^2}{\partial \x^2}\left[ \frac{1}{2}\x^\top Q\x + c^\top\x \right] = Q,
+\end{equation}
+and use the second-order sufficient condition.
+Since we showed that $Q\succ0$ by construction, we see that $\x^*$ is in fact the unique global minimizer\footnote{If $Q\succeq0$ and the constraint set is feasible there will be multiple solutions, \href{https://math.stackexchange.com/questions/2153050/does-a-convex-quadratic-program-have-a-unique-solution}{SE.Math}.}.
+
+Finally, we note that this discussion about first-order necessary and second-order sufficient conditions has been for the unconstrained optimization case.
+When constraints are incorporated using Lagrange multipliers, new (similar) second-order sufficient conditions arise.
+
+\section*{Introduction to qpOASES}
+Having covered some theoretical aspects of QPs, we turn our attention to using qpOASES to solve them.
+The qpOASES solver expects QPs in the following standard form:
+\begin{equation}\label{eq:qpoases-standard-qp}
+\begin{aligned}
+& \underset{\x}{\text{minimize}}
+& & \frac{1}{2}\x^\top H\x + \x^\top\g(w_0) \\
+& \text{subject to}
+& & \lb A(w_0) \leq A\x \leq \ub A(w_0)\\
+&&& \lb(w_0) \leq \x \leq \ub(w_0)
+\end{aligned}
+\end{equation}
+where $\x\in\reals^n$ is the optimization variable, $H\in\symm^n_+$ is the Hessian, $\g\in\reals^n$ is the gradient vector, $A\in\reals^{m\times n}$, and the (element-wise) upper and lower bounds are of appropriate dimensions.
+Notice that the gradient vector and the upper and lower bounds are affine functions of the parameter $w_0$.
+
+\subsubsection*{Example}
+Rewriting problem~\eqref{eq:ex-graphical-qp} into qpOASES standard form, we have that
+\begin{equation*}
+H=\begin{bmatrix}2&0\\0&2\end{bmatrix}
+;\quad
+\g^\top=\begin{bmatrix}-4&-4\end{bmatrix}
+;\quad
+A=\begin{bmatrix}2&4\\5&5\end{bmatrix}
+;\quad
+\lb A=\begin{bmatrix}-\infty\\-\infty\end{bmatrix}
+;\quad
+\ub A=\begin{bmatrix}28\\50\end{bmatrix}
+;\quad
+\lb=\begin{bmatrix}0\\0\end{bmatrix}
+;\quad
+\ub=\begin{bmatrix}8\\8\end{bmatrix}.
+\end{equation*}
+The solution to this QP is easily seen to be $\x^*=\begin{bmatrix}2&2\end{bmatrix}$, with no active constraints.
+We can check this in MATLAB with the following call to \texttt{quadprog}:
+\begin{quote}
+\begin{verbatim}
+>> x = quadprog(H,g,A,ubA,[],[],lb,ub)
+x =
+    2
+    2
+\end{verbatim}
+\end{quote}
+Using qpOASES, this QP can be solved using the following code:
+
+\begin{quote}
+\begin{verbatim}
+#include <iostream>
+#include <qpOASES.hpp>
+
+int main()
+{
+  constexpr int n = 2;
+  constexpr int m = 2;
+
+  // problem data
+  qpOASES::real_t H[n*n] = {2.0, 0.0, 0.0, 2.0};
+  qpOASES::real_t g[n] = {-4.0, -4.0};
+  qpOASES::real_t A[m*n]= {2.0, 4.0, 5.0, 5.0};
+  qpOASES::real_t * lbA = nullptr; // no lower bound
+  qpOASES::real_t ubA[m] = {28.0, 50.0};
+  qpOASES::real_t lb[n] = {0.0, 0.0};
+  qpOASES::real_t ub[n] = {8.0, 8.0};
+
+  qpOASES::QProblem P(n, m);
+
+  // solve QP
+  int nWSR = 10; // max num "working set recalculations"
+  P.init(H, g, A, lb, ub, lbA, ubA, nWSR);
+
+  qpOASES::real_t xOpt[n];
+  P.getPrimalSolution(xOpt);
+  std::cout << "xOpt:" << std::endl;
+  std::cout << "\t" << xOpt[0] << std::endl << "\t" << xOpt[1] << std::endl;
+  std::cout << "objVal: " << P.getObjVal() << std::endl;
+
+  return 0;
+}
+\end{verbatim}
+\end{quote}
+Which has the following output:
+\begin{quote}
+\begin{verbatim}
+####################   qpOASES  --  QP NO.   1   #####################
+
+    Iter   |    StepLength    |       Info       |   nFX   |   nAC    
+ ----------+------------------+------------------+---------+--------- 
+       0   |   1.884058e-01   |   REM BND    0   |     1   |     0   
+       1   |   1.428571e-02   |   REM BND    1   |     0   |     0   
+       2   |   1.000000e+00   |    QP SOLVED     |     0   |     0   
+xOpt:
+  2
+  2
+objVal: -8
+\end{verbatim}
+\end{quote}
+
+
+\end{document}
