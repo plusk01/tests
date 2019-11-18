@@ -28,7 +28,7 @@ set(QPOASES_LIBS -L${QPOASES_DIR}/install/lib;libqpOASES.a)
 ###############################################################################
 
 # Create the executables and link them to libs
-add_executable(main src/main.cpp)
-target_include_directories(main PRIVATE ${QPOASES_INCLUDE_DIRS})
-target_link_libraries(main ${QPOASES_LIBS})
+add_executable(example_qp src/example_qp.cpp)
+target_include_directories(example_qp PRIVATE ${QPOASES_INCLUDE_DIRS})
+target_link_libraries(example_qp ${QPOASES_LIBS})
 
