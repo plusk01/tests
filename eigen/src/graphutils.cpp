@@ -77,6 +77,7 @@ int main() {
 
   auto Q3 = Q2*Q1;
   std::cout << "Q3: " << std::endl << Q3.toDenseMatrix() << std::endl;
+  std::cout << "pi3: " << Q3.indices().transpose() << std::endl;
 
   return 0;
 }
