@@ -64,5 +64,19 @@ int main() {
   for (size_t i=0; i<v.size(); ++i) std::cout << v[i] << " ";
   std::cout << std::endl;
 
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+
+  std::vector<int> pi1 = {0, 2, 1, 3, 4};
+  Eigen::PermutationMatrix<Dynamic, Dynamic, int> Q1(Eigen::Map<Eigen::Matrix<int,Dynamic,1>>(pi1.data(), pi1.size()));
+  std::cout << "Q1: " << std::endl << Q1.toDenseMatrix() << std::endl;
+
+  std::vector<int> pi2 = {0, 4, 2, 1, 3};
+  Eigen::PermutationMatrix<Dynamic, Dynamic, int> Q2(Eigen::Map<Eigen::Matrix<int,Dynamic,1>>(pi2.data(), pi2.size()));
+  std::cout << "Q2: " << std::endl << Q2.toDenseMatrix() << std::endl;
+
+  auto Q3 = Q2*Q1;
+  std::cout << "Q3: " << std::endl << Q3.toDenseMatrix() << std::endl;
+
   return 0;
 }
