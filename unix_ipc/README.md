@@ -16,6 +16,11 @@ On systems that don't have shared memory (i.e., the Snapdragon Flight Pro board)
 
 The fact that on a desktop memory-mapped files are faster than shared memory is odd. See [Evaluation of Inter-Process Communications Mechanisms](http://pages.cs.wisc.edu/~adityav/Evaluation_of_Inter_Process_Communication_Mechanisms.pdf).
 
+## Thoughts on Shared Memory
+
+- Ensure that the server/producer is the only one that creates the shared memory segment (i.e., `IPC_CREAT | IPC_EXCL`).
+- For a one-to-one server/client application, the client should mark the shmem for destruction using `shmctl(shmid_, IPC_RMID, NULL)`.
+
 #### Resources
 
 - [Beej's Guide to Unix Interprocess Communication](https://beej.us/guide/bgipc/)
@@ -23,3 +28,4 @@ The fact that on a desktop memory-mapped files are faster than shared memory is 
 - [mmap and resize on new file](https://gist.github.com/marcetcheverry/991042/f8426523406419c0824b519da9bb12fc9713aae6)
 - [Synchronization Across Process Boundaries](https://docs.oracle.com/cd/E19455-01/806-5257/6je9h032v/index.html)
 - [pthread_cond_wait](https://github.com/angrave/SystemProgramming/wiki/Synchronization,-Part-5:-Condition-Variables#example)
+- [Notes for Shared Memory](https://pages.hep.wisc.edu/~pinghc/SharedMemoryNotes.htm) - shared memory control (e.g., what is the current number of attaches?)

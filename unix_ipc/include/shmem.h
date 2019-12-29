@@ -11,10 +11,11 @@ public:
   bool read(msg_t * msg) override;
 
 private:
-  int shmid_;
+  int shmid_ = -1;
   msg_t * msg_ptr_ = nullptr;
 
   bool init();
+  void connectToShmem(const key_t key);
   void deinit();
 };
 

@@ -3,6 +3,7 @@
 #include <cstring>
 #include <chrono>
 #include <stdexcept>
+#include <thread>
 #include <exception>
 
 // POSIX shared memory
@@ -71,16 +72,34 @@ bool ShmemClient::init()
   // generates an arbitrary long based on stat info of file
   key_t key = ftok("shmem_server", 'A');
 
-  // create and connect to a shared memory segment (check with 'ipcs -m')
-  shmid_ = shmget(key, sizeof(msg_t), IPC_CREAT | S_IRUSR | S_IWUSR);
+  // connect to a shared memory segment (check with 'ipcs -m')
+  connectToShmem(key);
 
   // attach to the shared memory segment
   void * ptr = shmat(shmid_, 0, 0);
   msg_ptr_ = reinterpret_cast<msg_t *>(ptr);
 
+  // mark for destruction, also prevent others from attaching
+  shmctl(shmid_, IPC_RMID, NULL);
+
   std::cout << "shmid: " << shmid_ << std::endl;
 
   return true;
+}
+
+// ----------------------------------------------------------------------------
+
+void ShmemClient::connectToShmem(const key_t key)
+{
+  while (shmid_ == -1) {
+    // n.b., we let the server create the memory
+    shmid_ = shmget(key, sizeof(msg_t), /*IPC_CREAT |*/ S_IRUSR | S_IWUSR);
+
+    if (shmid_ == -1) {
+      std::cout << "Waiting on server to initialize shared memory..." << std::endl;
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -146,7 +165,7 @@ bool ShmemServer::initSHM()
   key_t key = ftok("shmem_server", 'A');
 
   // create and connect to a shared memory segment (check with 'ipcs -m')
-  shmid_ = shmget(key, sizeof(msg_t), IPC_CREAT | /*IPC_EXCL |*/ S_IRUSR | S_IWUSR);
+  shmid_ = shmget(key, sizeof(msg_t), IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR);
 
   // attach to the shared memory segment
   void * ptr = shmat(shmid_, 0, 0);
@@ -165,7 +184,7 @@ void ShmemServer::deinitSHM()
   shmdt(reinterpret_cast<void *>(msg_ptr_));
 
   // destroy
-  shmctl(shmid_, IPC_RMID, NULL);
+  // shmctl(shmid_, IPC_RMID, NULL);
 }
 
 // ----------------------------------------------------------------------------
