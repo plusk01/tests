@@ -1,0 +1,14 @@
+cmake_minimum_required(VERSION 2.8.4)
+project(dlib-download NONE)
+
+include(ExternalProject)
+ExternalProject_Add(dlib
+  GIT_REPOSITORY    https://github.com/davisking/dlib.git
+  GIT_TAG           v19.19
+  SOURCE_DIR        "${CMAKE_CURRENT_BINARY_DIR}/src"
+  BINARY_DIR        "${CMAKE_CURRENT_BINARY_DIR}/build"
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND     ""
+  INSTALL_COMMAND   ""
+  TEST_COMMAND      ""
+)
