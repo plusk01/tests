@@ -16,6 +16,10 @@ add_executable(pcd_write_test src/pcd_write_test.cpp)
 target_include_directories(pcd_write_test PRIVATE ${PCL_INCLUDE_DIRS})
 target_link_libraries(pcd_write_test ${PCL_LIBRARIES})
 
+add_executable(registration_pipeline_ex src/registration_pipeline_ex.cpp)
+target_include_directories(registration_pipeline_ex PRIVATE ${PCL_INCLUDE_DIRS})
+target_link_libraries(registration_pipeline_ex ${PCL_LIBRARIES})
+
 add_executable(registration_pipeline src/registration_pipeline.cpp)
 target_include_directories(registration_pipeline PRIVATE ${PCL_INCLUDE_DIRS})
 target_link_libraries(registration_pipeline ${PCL_LIBRARIES})
