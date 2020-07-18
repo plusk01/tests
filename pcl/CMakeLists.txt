@@ -23,3 +23,7 @@ target_link_libraries(registration_pipeline_ex ${PCL_LIBRARIES})
 add_executable(registration_pipeline src/registration_pipeline.cpp)
 target_include_directories(registration_pipeline PRIVATE ${PCL_INCLUDE_DIRS})
 target_link_libraries(registration_pipeline ${PCL_LIBRARIES})
+
+add_executable(ndtreg src/ndtreg.cpp)
+target_include_directories(ndtreg PRIVATE ${PCL_INCLUDE_DIRS})
+target_link_libraries(ndtreg ${PCL_LIBRARIES})

@@ -111,7 +111,7 @@ int main(int, char** argv)
     pcl::FPFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::FPFHSignature33> fpfh;
     fpfh.setInputCloud(source_cloud);
     fpfh.setInputNormals(source_normals);
-    fpfh.setIndices(keypoints_indices);
+    // fpfh.setIndices(keypoints_indices);
     fpfh.setSearchMethod(tree);
     fpfh.setRadiusSearch(0.2);
     fpfh.compute(*source_features);
@@ -171,7 +171,7 @@ int main(int, char** argv)
     pcl::FPFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::FPFHSignature33> fpfh1;
     fpfh1.setInputCloud(target_cloud);
     fpfh1.setInputNormals(target_normals);
-    fpfh1.setIndices(keypoints_indices_1);
+    // fpfh1.setIndices(keypoints_indices_1);
     fpfh1.setSearchMethod(tree);
     fpfh1.setRadiusSearch(0.2);
     fpfh1.compute(*target_features);
@@ -190,14 +190,14 @@ int main(int, char** argv)
 
 // estimate correspondences
     pcl::registration::CorrespondenceEstimation<pcl::FPFHSignature33, pcl::FPFHSignature33> est;
-    pcl::CorrespondencesPtr correspondences(new pcl::Correspondences());
+    pcl::CorrespondencesPtr correspondences(new pcl::Correspondences);
     est.setInputSource(source_features);
     est.setInputTarget(target_features);
     est.determineCorrespondences(*correspondences);
 
     // Duplication rejection Duplicate
 
-    pcl::CorrespondencesPtr correspondences_result_rej_one_to_one(new pcl::Correspondences());
+    pcl::CorrespondencesPtr correspondences_result_rej_one_to_one(new pcl::Correspondences);
     pcl::registration::CorrespondenceRejectorOneToOne corr_rej_one_to_one;
     corr_rej_one_to_one.setInputCorrespondences(correspondences);
     corr_rej_one_to_one.getCorrespondences(*correspondences_result_rej_one_to_one);
@@ -207,9 +207,9 @@ int main(int, char** argv)
 
     Eigen::Matrix4f transform = Eigen::Matrix4f::Identity();
     pcl::registration::CorrespondenceRejectorSampleConsensus<pcl::PointXYZ> rejector_sac;
-    pcl::CorrespondencesPtr correspondences_filtered(new pcl::Correspondences());
-    rejector_sac.setInputSource(source_keypoints);
-    rejector_sac.setInputTarget(target_keypoints);
+    pcl::CorrespondencesPtr correspondences_filtered(new pcl::Correspondences);
+    rejector_sac.setInputSource(source_cloud);
+    rejector_sac.setInputTarget(target_cloud);
     rejector_sac.setInlierThreshold(2.5); // distance in m, not the squared distance
     rejector_sac.setMaximumIterations(1000000);
     rejector_sac.setRefineModel(false);
@@ -237,20 +237,21 @@ int main(int, char** argv)
     viewer.setBackgroundColor(1, 1, 1);
     viewer.resetCamera();
     pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> handler_source_cloud(transformed_source, 150, 80, 80);
-    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> handler_source_keypoints(source_keypoints, 255, 0, 0);
+    // pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> handler_source_keypoints(source_keypoints, 255, 0, 0);
 
     viewer.addPointCloud<pcl::PointXYZ>(transformed_source, handler_source_cloud, "source_cloud");
-    viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "source_cloud");
-    viewer.addPointCloud<pcl::PointXYZ>(source_keypoints, handler_source_keypoints, "source_keypoints");
+    viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 2, "source_cloud");
+    // viewer.addPointCloud<pcl::PointXYZ>(source_keypoints, handler_source_keypoints, "source_keypoints");
 
     pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> handler_target_cloud(target_cloud, 80, 150, 80);
-    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> handler_target_keypoints(target_keypoints, 0, 255, 0);
+    // pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> handler_target_keypoints(target_keypoints, 0, 255, 0);
 
     viewer.addPointCloud<pcl::PointXYZ>(target_cloud, handler_target_cloud, "target_cloud");
-    viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "target_cloud");
-    viewer.addPointCloud<pcl::PointXYZ>(target_keypoints, handler_target_keypoints, "target_keypoints");
-    viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 5, "target_keypoints");
-    viewer.addCorrespondences<pcl::PointXYZ>(source_keypoints, target_keypoints, *correspondences, 1, "correspondences");
+    viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 2, "target_cloud");
+    // viewer.addPointCloud<pcl::PointXYZ>(target_keypoints, handler_target_keypoints, "target_keypoints");
+    // viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 5, "target_keypoints");
+    // viewer.addCorrespondences<pcl::PointXYZ>(source_keypoints, target_keypoints, *correspondences, 1, "correspondences");
+    // viewer.addCorrespondences<pcl::PointXYZ>(source_cloud, target_cloud, *correspondences, 1, "correspondences");
 
     pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
     icp.setInputSource(transformed_source);
@@ -262,7 +263,7 @@ int main(int, char** argv)
 
 
     ICPView.addPointCloud<pcl::PointXYZ>(final_output, handler_source_cloud, "Final_cloud");
-    ICPView.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 5, "source_keypoints");
+    // ICPView.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 5, "source_keypoints");
     while (!viewer.wasStopped())
     {
 
