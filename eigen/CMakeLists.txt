@@ -58,3 +58,9 @@ target_link_libraries(mapinout)
 
 add_executable(arun src/arun.cpp)
 target_link_libraries(arun ${OpenCV_LIBS})
+
+add_executable(sparse src/sparse.cpp)
+target_link_libraries(sparse)
+
+add_executable(visitors src/visitors.cpp)
+target_link_libraries(visitors)
