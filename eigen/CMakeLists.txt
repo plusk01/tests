@@ -64,3 +64,6 @@ target_link_libraries(sparse)
 
 add_executable(visitors src/visitors.cpp)
 target_link_libraries(visitors)
+
+add_executable(euler src/euler.cpp)
+target_link_libraries(euler)
