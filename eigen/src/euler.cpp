@@ -8,6 +8,7 @@ using namespace Eigen;
 // http://docs.ros.org/noetic/api/tf2/html/Matrix3x3_8h_source.html#l00294
 // See Section 2.6 of https://www.geometrictools.com/Documentation/EulerAngles.pdf
 // and https://www.gregslabaugh.net/publications/euler.pdf <-- explains why div by cos
+// https://github.com/robustrobotics/quadrotor/blob/2f43202b92f004e85adeabd8881f3aaa4f7d56e6/src/control/quad_controller_ros/src/quad_controller/utilities.h#L43
 Eigen::Vector3d sxyz_from_quaternion(const Eigen::Quaterniond& q)
 {
   const Eigen::Matrix3d R = q.toRotationMatrix();
