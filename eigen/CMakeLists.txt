@@ -1,8 +1,20 @@
 cmake_minimum_required(VERSION 2.8.4)
 project(eigen_playground)
 
-set (CMAKE_CXX_STANDARD 11)
-set(CMAKE_BUILD_TYPE Debug)
+set (CMAKE_CXX_STANDARD 14)
+set(CMAKE_BUILD_TYPE Release)
+
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+
+option(ENABLE_MKL "Use MKL with Eigen" OFF)
+if (ENABLE_MKL)
+    find_package(MKL)
+    if(MKL_FOUND)
+        message(STATUS "MKL found at: ${MKL_LIBRARIES}")
+    else()
+        message(STATUS "MKL not found.")
+    endif()
+endif()
 
 # Find dependent libraries
 find_package(OpenCV 3 REQUIRED)
@@ -67,3 +79,11 @@ target_link_libraries(visitors)
 
 add_executable(euler src/euler.cpp)
 target_link_libraries(euler)
+
+add_executable(mkl src/mkl.cpp)
+target_link_libraries(mkl)
+if(MKL_FOUND)
+    target_include_directories(mkl PRIVATE ${MKL_INCLUDE_DIR})
+    target_compile_definitions(mkl PRIVATE -DEIGEN_USE_MKL_ALL)
+    target_link_libraries(mkl PRIVATE ${MKL_LIBRARIES})
+endif()
