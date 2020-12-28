@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import sys
 sys.path.append('../build/')
 
@@ -15,7 +17,7 @@ print
 print("print_stl_numpy")
 print
 vs = []
-for i in xrange(5):
+for i in range(5):
     vs += [np.random.uniform(low=0,high=5,size=(2,))]
 print(vs)
 pe.print_stl_numpy( vs )

@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 2.8.4)
+cmake_minimum_required(VERSION 3.1)
 project(pybind_example)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_BUILD_TYPE Debug)
 
 # Setup cmake paths
@@ -31,7 +31,7 @@ message(STATUS "Eigen Version: " ${EIGEN3_VERSION_STRING})
 include_directories(include ${EIGEN3_INCLUDE_DIRS})
 
 # setup pybind11
-set(PYBIND11_CPP_STANDARD -std=c++11)
-set(PYBIND11_PYTHON_VERSION 2.7)
+# set(PYBIND11_CPP_STANDARD -std=c++11)
+# set(PYBIND11_PYTHON_VERSION 3)
 add_subdirectory(${PYBIND_DIR}/src)
 pybind11_add_module(pybind_example src/main.cpp)
