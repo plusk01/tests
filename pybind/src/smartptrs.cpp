@@ -5,9 +5,17 @@
 #include <vector>
 
 #include <pybind11/pybind11.h>
-#include <pybind11/functional.h>
+#include <pybind11/functional.h> /// <-- magically handles std::function<> return / args
 
 #include "lusk.h"
+
+/**
+ * Outstanding questions:
+ *   - when trying to use Open3D's virtual/trampolined classes, I got errors
+ *      with the equivalent GetInitFunction
+ *   - How to downcast in Python? Have to write helper 'can_downcast_from'
+ *      and 'downcast' methods?
+ */
 
 namespace lusk {
 namespace smartptrs {
@@ -26,6 +34,14 @@ class Derived : public Base
 {
 public:
     Derived() : Base(8) { x_ = 2*v_; }
+
+
+    static std::function<std::shared_ptr<Base>()> GetInitFunction()
+    {
+        return []() -> std::shared_ptr<Base> {
+            return std::make_shared<Derived>();
+        };
+    }
 
     static std::function<void(const std::shared_ptr<Base>&)> GetUpdateFunction(int y)
     {
@@ -65,6 +81,15 @@ public:
             f(base);
         }
     }
+
+    std::shared_ptr<Base> create(const std::function<std::shared_ptr<Base>()>& f = nullptr)
+    {
+        if (!f) {
+            return Derived::GetInitFunction()();
+        } else {
+            return f();
+        }
+    }
 };
 
 void pybind_smartptrs(py::module &m)
@@ -96,7 +121,8 @@ void pybind_smartptrs(py::module &m)
                 return "<Example>";
             })
         .def("print", &Example::print, "base"_a, "Print a base or derived object")
-        .def("process", &Example::process, "base"_a, "f"_a = nullptr, "Process");
+        .def("process", &Example::process, "base"_a, "f"_a = nullptr, "Process")
+        .def("create", &Example::create, "f"_a = nullptr, "Create");
 
 }
 
