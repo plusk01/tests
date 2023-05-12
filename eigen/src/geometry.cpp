@@ -116,6 +116,32 @@ int main() {
 
   }
 
+// --------------------------------------------------------------------------
+  std::cout << std::endl << std::endl;
+// --------------------------------------------------------------------------
+
+  {
+    Matrix3d R;
+    R << -0.4096,    0.5636,    0.7173,
+          0.7846,   -0.1835,    0.5922,
+          0.4654,    0.8054,   -0.3671;
+
+    Affine3d T;
+    T.linear() = R;
+    T.translation() = Eigen::Vector3d(1, 5, 6);
+
+    std::cout << T.matrix() << std::endl;
+
+    Eigen::Vector3d n{1, 0, 0};
+    n.normalize();
+
+    Eigen::Vector3d a = T.linear() * n;
+
+    std::cout << std::endl;
+    std::cout << a.norm() << std::endl;
+    std::cout << a.transpose() << std::endl;
+  }
+
   return 0;
 }
 // 2.0519   -0.4841    1.9984
