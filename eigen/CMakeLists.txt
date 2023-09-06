@@ -17,7 +17,7 @@ if (ENABLE_MKL)
 endif()
 
 # Find dependent libraries
-find_package(OpenCV 3 REQUIRED)
+find_package(OpenCV 4 REQUIRED)
 message(STATUS "OpenCV Version: " ${OpenCV_VERSION})
 find_package(Eigen3 REQUIRED)
 message(STATUS "Eigen Version: " ${EIGEN3_VERSION_STRING})

@@ -37,6 +37,13 @@ void works(Ref<Vector2d> a)
   a.coeffRef(1) = .605;
 }
 
+void works2(Ref<Vector2d> a)
+{
+  Eigen::Vector2d b;
+  dontWork(b);
+  a = b;
+}
+
 
 int main()
 {
@@ -46,6 +53,8 @@ int main()
 
   works(A.col(0).head<2>());
   // dontWork(A.col(0).head<2>());
+
+  works2(A.col(1).head<2>());
 
   std::cout << "A:" << std::endl << A << std::endl;
 
